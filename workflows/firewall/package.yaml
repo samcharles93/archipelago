@@ -1,0 +1,13 @@
+apiVersion: dev.archie.package.v1
+displayName: Firewall investigate and contain
+description: Investigate a source address from firewall logs, then decide and record containment. Needs a network-investigator agent profile.
+version: 1.0.0
+contributes:
+  workflows:
+    - workflows/firewall-investigate.yaml
+    - workflows/firewall-contain.yaml
+files:
+  - path: workflows/firewall-investigate.yaml
+    mode: 420
+  - path: workflows/firewall-contain.yaml
+    mode: 420

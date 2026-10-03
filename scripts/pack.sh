@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
 # Build one package and push it to a registry as an archie-core store package.
 #   scripts/pack.sh secret-engines/bws localhost:5001/bws:1.0.0
-# Prints the manifest digest, the pin archie-core installs by.
+#   scripts/pack.sh workflows/firewall localhost:5001/firewall:1.0.0
+# A directory with a main.go is an extension: it is built to bin/<name>. Every
+# other file beside package.yaml is carried as written, at the path package.yaml
+# declares. Prints the manifest digest, the pin archie-core installs by.
 set -euo pipefail
 
 dir=${1:?package directory, e.g. secret-engines/bws}
@@ -10,12 +13,19 @@ root=$(cd "$(dirname "$0")/.." && pwd)
 work=$(mktemp -d)
 trap 'rm -rf "$work"' EXIT
 
-mkdir -p "$work/stage/bin" "$work/oci/blobs/sha256"
-(cd "$root" && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags='-s -w' \
-  -o "$work/stage/bin/$(basename "$dir")" "./$dir")
-chmod 0755 "$work/stage/bin/$(basename "$dir")"
+mkdir -p "$work/stage" "$work/oci/blobs/sha256"
+if [ -f "$root/$dir/main.go" ]; then
+  mkdir -p "$work/stage/bin"
+  (cd "$root" && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags='-s -w' \
+    -o "$work/stage/bin/$(basename "$dir")" "./$dir")
+  chmod 0755 "$work/stage/bin/$(basename "$dir")"
+fi
+(cd "$root/$dir" && find . -type f ! -name package.yaml ! -name '*.go' ! -name go.mod ! -name go.sum -print0 \
+  | while IFS= read -r -d '' f; do install -D -m 0644 "$f" "$work/stage/${f#./}"; done)
 
-tar --owner=0 --group=0 --numeric-owner --sort=name -C "$work/stage" -czf "$work/layer.tgz" "bin/$(basename "$dir")"
+# Regular files only: the store refuses directory entries in a layer.
+(cd "$work/stage" && find . -type f -printf '%P\n' | LC_ALL=C sort >"$work/files.txt" \
+  && tar --owner=0 --group=0 --numeric-owner --no-recursion -czf "$work/layer.tgz" -T "$work/files.txt")
 blob() { local d; d=$(sha256sum "$1" | cut -d' ' -f1); cp "$1" "$work/oci/blobs/sha256/$d"; echo "sha256:$d"; }
 
 printf '{}' >"$work/config.json"
