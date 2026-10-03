@@ -1,0 +1,15 @@
+apiVersion: dev.archie.package.v1
+displayName: age
+description: Resolve secret references from an age-encrypted key=value file through the age CLI.
+version: 1.0.0
+contributes:
+  extensions:
+    - surface: secretengine
+      path: bin/age
+authority:
+  env:
+    - AGE_FILE
+    - AGE_IDENTITY
+files:
+  - path: bin/age
+    mode: 493

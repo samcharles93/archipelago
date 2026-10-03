@@ -1,0 +1,14 @@
+apiVersion: dev.archie.package.v1
+displayName: SOPS
+description: Resolve secret references from a sops-encrypted file through the sops CLI.
+version: 1.0.0
+contributes:
+  extensions:
+    - surface: secretengine
+      path: bin/sops
+authority:
+  env:
+    - SOPS_FILE
+files:
+  - path: bin/sops
+    mode: 493
