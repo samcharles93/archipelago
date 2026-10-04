@@ -1,0 +1,11 @@
+apiVersion: dev.archie.package.v1
+displayName: Webhook channel
+description: Inbound webhook chat channel: an external service POSTs a message and the model answers.
+version: 1.0.0
+contributes:
+  extensions:
+    - surface: channel
+      path: bin/webhook
+files:
+  - path: bin/webhook
+    mode: 493
