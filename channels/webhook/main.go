@@ -101,6 +101,11 @@ func handler(path, template, deliverTo, secret string, chat gatewayv1.ChatServic
 			http.Error(w, "route error", http.StatusInternalServerError)
 			return
 		}
+		// A rate-limited delivery answers 429 so the source retries.
+		if reply.GetRateLimited() {
+			http.Error(w, "rate limited", http.StatusTooManyRequests)
+			return
+		}
 		if deliverTo == "origin" && reply.GetText() != "" {
 			w.Header().Set("Content-Type", "text/plain")
 			_, _ = w.Write([]byte(reply.GetText()))

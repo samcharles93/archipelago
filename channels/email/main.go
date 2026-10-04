@@ -157,6 +157,7 @@ func (g *gateway) processMessage(ctx context.Context, from, to, raw string) {
 	reply, err := g.chat.Route(ctx, &gatewayv1.RouteRequest{Message: &gatewayv1.Message{
 		ChannelId: to,
 		From:      from,
+		SenderId:  from,
 		Text:      text,
 		Platform:  "email",
 	}})
