@@ -1,0 +1,10 @@
+apiVersion: dev.archie.package.v1
+displayName: archie-wf-frontend
+description: "Runs frontend quality checks: stylelint for CSS, htmlhint for HTML. Gate stage runs these after Go vet/build/test. Use in any project with web assets to catch syntax errors, broken selectors, and structural issues before they reach a PR."
+version: 1.0.0
+contributes:
+  skills:
+    - SKILL.md
+files:
+  - path: SKILL.md
+    mode: 420

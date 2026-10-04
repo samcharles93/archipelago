@@ -1,0 +1,10 @@
+apiVersion: dev.archie.package.v1
+displayName: archie-wf-node
+description: "Node.js/TypeScript project conventions for archie-core: npm/pnpm, eslint, prettier, tsc, vitest. Use when working on Node repositories with archie-core."
+version: 1.0.0
+contributes:
+  skills:
+    - SKILL.md
+files:
+  - path: SKILL.md
+    mode: 420

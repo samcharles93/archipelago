@@ -1,0 +1,10 @@
+apiVersion: dev.archie.package.v1
+displayName: archie-wf-security
+description: "Scan code for security vulnerabilities: hardcoded secrets, injection vectors, unsafe deserialization, missing auth checks, and path traversal. Use on PRs touching auth, API endpoints, or data handling code."
+version: 1.0.0
+contributes:
+  skills:
+    - SKILL.md
+files:
+  - path: SKILL.md
+    mode: 420

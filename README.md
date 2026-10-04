@@ -5,6 +5,7 @@ directory holds one subdirectory per extension.
 
 ```
 secret-engines/<name>/   package.yaml + Go source, served over secretengine.v1
+skills/<name>/           package.yaml + SKILL.md, projected into skills
 workflows/<name>/        package.yaml + workflow YAML, projected into workflow-definitions
 channels/<name>/         package.yaml + Go source, served over channel.v1 (webhook, email)
 forge/<name>/            package.yaml + Go source, served over forge.v1 (github, gitea)

@@ -1,0 +1,10 @@
+apiVersion: dev.archie.package.v1
+displayName: archie-wf-python
+description: "Python project conventions for archie-core: venv, pytest, ruff, mypy, pip-audit. Use when working on Python repositories with archie-core."
+version: 1.0.0
+contributes:
+  skills:
+    - SKILL.md
+files:
+  - path: SKILL.md
+    mode: 420

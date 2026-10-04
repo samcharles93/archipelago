@@ -1,0 +1,10 @@
+apiVersion: dev.archie.package.v1
+displayName: archie-wf-tdd
+description: "Fix bugs using test-driven development. Write a failing repro test first, prove it captures the bug, then fix the code without touching the tests. archie-core routes issues labelled \"bug\" through this workflow automatically."
+version: 1.0.0
+contributes:
+  skills:
+    - SKILL.md
+files:
+  - path: SKILL.md
+    mode: 420

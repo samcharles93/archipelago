@@ -1,0 +1,10 @@
+apiVersion: dev.archie.package.v1
+displayName: archie-wf-go-gate
+description: "Run the full Go quality pipeline: gofumpt, go fix, golangci-lint, go test -race, and task deadcode. Use before any commit in a Go project. Triggered automatically by archie-core's implement and tdd workflows via the per-repo gate config."
+version: 1.0.0
+contributes:
+  skills:
+    - SKILL.md
+files:
+  - path: SKILL.md
+    mode: 420
