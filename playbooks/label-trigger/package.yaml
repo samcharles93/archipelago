@@ -1,0 +1,10 @@
+apiVersion: dev.archie.package.v1
+displayName: label-trigger
+description: Route an instance-defined label to a workflow.
+version: 1.0.0
+contributes:
+  playbooks:
+    - label-trigger.yaml
+files:
+  - path: label-trigger.yaml
+    mode: 420

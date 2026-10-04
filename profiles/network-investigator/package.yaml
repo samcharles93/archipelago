@@ -1,0 +1,10 @@
+apiVersion: dev.archie.package.v1
+displayName: Network investigator profile
+description: Agent profile for the firewall workflows. Needs the archie-agent-net image, built from Dockerfile.agent-net.
+version: 1.0.0
+contributes:
+  profiles:
+    - network-investigator.yaml
+files:
+  - path: network-investigator.yaml
+    mode: 420

@@ -1,0 +1,10 @@
+apiVersion: dev.archie.package.v1
+displayName: bug-tdd
+description: Route bugs labelled regression to the tdd workflow.
+version: 1.0.0
+contributes:
+  playbooks:
+    - bug-tdd.yaml
+files:
+  - path: bug-tdd.yaml
+    mode: 420
