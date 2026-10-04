@@ -1,0 +1,15 @@
+apiVersion: dev.archie.package.v1
+displayName: GitHub forge
+description: GitHub issues, pull requests, reviews and webhooks for archie-core.
+version: 1.0.0
+contributes:
+  extensions:
+    - surface: forge
+      path: bin/github
+authority:
+  egressHosts:
+    - api.github.com
+    - github.com
+files:
+  - path: bin/github
+    mode: 493

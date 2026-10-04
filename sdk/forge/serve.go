@@ -30,7 +30,8 @@ func (*plugin) GRPCClient(context.Context, *goplugin.GRPCBroker, *grpc.ClientCon
 
 // Serve runs impl as the extension process. It returns when archie-core stops
 // the extension.
-func Serve(impl forgev1.ForgeServiceServer) {
+func Serve(build func(Config) (Forge, error)) {
+	impl := &server{build: build}
 	goplugin.Serve(&goplugin.ServeConfig{
 		HandshakeConfig: goplugin.HandshakeConfig{
 			ProtocolVersion:  1,

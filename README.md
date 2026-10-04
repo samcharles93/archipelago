@@ -6,6 +6,7 @@ directory holds one subdirectory per extension.
 ```
 secret-engines/<name>/   package.yaml + Go source, served over secretengine.v1
 workflows/<name>/        package.yaml + workflow YAML, projected into workflow-definitions
+forge/<name>/            package.yaml + Go source, served over forge.v1 (github, gitea)
 playbooks/<name>/        package.yaml + EDA playbook YAML, projected into eda-playbooks
 profiles/<name>/         package.yaml + agent profile YAML, projected into agent-profiles
 sdk/                     generated surface stubs and the Serve helper
