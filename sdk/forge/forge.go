@@ -37,6 +37,9 @@ type Forge interface {
 	CreatePR(ctx context.Context, owner, repo, title, head, base, body string) (int, error)
 	// PRState is "open", "merged" or "closed".
 	PRState(ctx context.Context, owner, repo string, number int) (string, error)
+	// ClosePR closes a pull request without merging, with an optional final
+	// comment.
+	ClosePR(ctx context.Context, owner, repo string, number int, comment string) error
 	AcceptInvitations(ctx context.Context) error
 	VerifyPush(ctx context.Context, owner, repo string) error
 	LinkBranch(ctx context.Context, owner, repo string, issueNumber int, branch string) error

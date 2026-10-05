@@ -338,6 +338,19 @@ func (c *GiteaClient) CloseIssue(ctx context.Context, owner, repo string, number
 	return err
 }
 
+// ClosePR closes a pull request without merging, with an optional final
+// comment.
+func (c *GiteaClient) ClosePR(ctx context.Context, owner, repo string, number int, comment string) error {
+	if comment != "" {
+		if _, err := c.Comment(ctx, owner, repo, number, comment); err != nil {
+			return err
+		}
+	}
+	state := gitea.StateClosed
+	_, _, err := c.cli.EditPullRequest(owner, repo, int64(number), gitea.EditPullRequestOption{State: &state})
+	return err
+}
+
 // React adds an emoji reaction to an issue.
 func (c *GiteaClient) React(ctx context.Context, owner, repo string, number int, reaction string) error {
 	_, _, err := c.cli.PostIssueReaction(owner, repo, int64(number), reaction)

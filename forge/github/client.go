@@ -350,6 +350,19 @@ func (c *GitHubClient) CloseIssue(ctx context.Context, owner, repo string, numbe
 	return err
 }
 
+// ClosePR closes a pull request without merging, with an optional final
+// comment.
+func (c *GitHubClient) ClosePR(ctx context.Context, owner, repo string, number int, comment string) error {
+	if comment != "" {
+		if _, err := c.Comment(ctx, owner, repo, number, comment); err != nil {
+			return err
+		}
+	}
+	_, _, err := c.gh.PullRequests.Edit(ctx, owner, repo, number,
+		&github.PullRequest{State: new("closed")})
+	return err
+}
+
 // LinkBranch associates a branch with an issue (GitHub stub  --  Gitea is primary).
 func (c *GitHubClient) LinkBranch(ctx context.Context, owner, repo string, issueNumber int, branch string) error {
 	return nil

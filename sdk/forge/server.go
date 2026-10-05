@@ -147,6 +147,14 @@ func (s *server) PRState(ctx context.Context, r *forgev1.PRStateRequest) (*forge
 	return &forgev1.PRStateResponse{State: state}, fail(err)
 }
 
+func (s *server) ClosePR(ctx context.Context, r *forgev1.ClosePRRequest) (*forgev1.ClosePRResponse, error) {
+	f, err := s.forge()
+	if err != nil {
+		return nil, err
+	}
+	return &forgev1.ClosePRResponse{}, fail(f.ClosePR(ctx, r.GetRepo().GetOwner(), r.GetRepo().GetRepo(), int(r.GetNumber()), r.GetComment()))
+}
+
 func (s *server) GetPullRequest(ctx context.Context, r *forgev1.GetPullRequestRequest) (*forgev1.GetPullRequestResponse, error) {
 	c, err := capability[PullRequestReader](s)
 	if err != nil {
