@@ -21,11 +21,7 @@ func resolve(ctx context.Context, key string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	// The key reaches the vault CLI as arguments; a leading "-" would be read
-	// as a flag such as -address.
-	if strings.HasPrefix(path, "-") || field == "" {
-		return "", fmt.Errorf("key %q is not a valid path/field", key)
-	}
+
 	value, err := secretengine.Run(ctx, "vault", "kv", "get", "-field="+field, path)
 	if err != nil {
 		return "", fmt.Errorf("read %s/%s: %w", path, field, err)
@@ -36,15 +32,18 @@ func resolve(ctx context.Context, key string) (string, error) {
 	return value, nil
 }
 
+// target splits key into the CLI's path and field. Both reach the vault CLI as
+// arguments, so a path with a leading "-" is refused: it would be read as a
+// flag such as -address.
 func target(key string) (path, field string, err error) {
+	path, field = os.Getenv("VAULT_SECRET_PATH"), key
 	if i := strings.LastIndex(key, "/"); i >= 0 {
-		return key[:i], key[i+1:], nil
+		path, field = key[:i], key[i+1:]
 	}
-	prefix := os.Getenv("VAULT_SECRET_PATH")
-	if prefix == "" {
-		return "", "", errors.New("key has no path and VAULT_SECRET_PATH is not set")
+	if path == "" || field == "" || strings.HasPrefix(path, "-") {
+		return "", "", fmt.Errorf("key %q is not a valid path/field (a key with no path needs VAULT_SECRET_PATH)", key)
 	}
-	return prefix, key, nil
+	return path, field, nil
 }
 
 func main() { secretengine.ServeFunc(resolve) }
