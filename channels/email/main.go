@@ -46,7 +46,7 @@ func run(ctx context.Context, cfg channel.Config, chat gatewayv1.ChatServiceClie
 	if err != nil {
 		return fmt.Errorf("email: dial %s: %w", s.imapAddr, err)
 	}
-	defer client.Close()
+	defer func() { _ = client.Close() }()
 	if err := client.Login(s.username, s.password).Wait(); err != nil {
 		return fmt.Errorf("email: imap login: %w", err)
 	}
