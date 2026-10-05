@@ -1,0 +1,31 @@
+name: publish
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - name: Install skopeo
+        run: sudo apt-get update && sudo apt-get install -y skopeo
+      - name: Log in to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | skopeo login ghcr.io -u "${{ github.actor }}" --password-stdin
+      - name: Publish packages and the signed catalogue
+        env:
+          ARCHIPELAGO_CATALOGUE_KEY: ${{ secrets.ARCHIPELAGO_CATALOGUE_KEY }}
+        run: scripts/publish.sh ghcr.io/${{ github.repository_owner }}/archipelago

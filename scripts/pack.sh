@@ -25,7 +25,8 @@ fi
 
 # Regular files only: the store refuses directory entries in a layer.
 (cd "$work/stage" && find . -type f -printf '%P\n' | LC_ALL=C sort >"$work/files.txt" \
-  && tar --owner=0 --group=0 --numeric-owner --no-recursion -czf "$work/layer.tgz" -T "$work/files.txt")
+  && tar --format=gnu --owner=0 --group=0 --numeric-owner --mtime=@0 --no-recursion -cf - -T "$work/files.txt" \
+  | gzip -n >"$work/layer.tgz")
 blob() { local d; d=$(sha256sum "$1" | cut -d' ' -f1); cp "$1" "$work/oci/blobs/sha256/$d"; echo "sha256:$d"; }
 
 printf '{}' >"$work/config.json"
@@ -48,5 +49,8 @@ jq -n --arg d "$manifest" --argjson s "$(stat -c %s "$work/manifest.json")" \
   '{schemaVersion: 2, manifests: [{mediaType: "application/vnd.oci.image.manifest.v1+json", digest: $d, size: $s}]}' \
   >"$work/oci/index.json"
 
-skopeo copy --preserve-digests --dest-tls-verify=false "oci:$work/oci" "docker://$ref" >&2
+# Plain HTTP only for a registry on this host, as archie-core fetches it.
+tls=true
+case "$ref" in localhost[:/]* | 127.0.0.1[:/]* | "[::1]"*) tls=false ;; esac
+skopeo copy --preserve-digests --dest-tls-verify=$tls "oci:$work/oci" "docker://$ref" >&2
 echo "$manifest"
