@@ -155,6 +155,14 @@ func (s *server) ClosePR(ctx context.Context, r *forgev1.ClosePRRequest) (*forge
 	return &forgev1.ClosePRResponse{}, fail(f.ClosePR(ctx, r.GetRepo().GetOwner(), r.GetRepo().GetRepo(), int(r.GetNumber()), r.GetComment()))
 }
 
+func (s *server) MergePR(ctx context.Context, r *forgev1.MergePRRequest) (*forgev1.MergePRResponse, error) {
+	f, err := s.forge()
+	if err != nil {
+		return nil, err
+	}
+	return &forgev1.MergePRResponse{}, fail(f.MergePR(ctx, r.GetRepo().GetOwner(), r.GetRepo().GetRepo(), int(r.GetNumber())))
+}
+
 func (s *server) GetPullRequest(ctx context.Context, r *forgev1.GetPullRequestRequest) (*forgev1.GetPullRequestResponse, error) {
 	c, err := capability[PullRequestReader](s)
 	if err != nil {

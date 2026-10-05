@@ -363,6 +363,12 @@ func (c *GitHubClient) ClosePR(ctx context.Context, owner, repo string, number i
 	return err
 }
 
+// MergePR merges a pull request with the repository's default method.
+func (c *GitHubClient) MergePR(ctx context.Context, owner, repo string, number int) error {
+	_, _, err := c.gh.PullRequests.Merge(ctx, owner, repo, number, "", nil)
+	return err
+}
+
 // LinkBranch associates a branch with an issue (GitHub stub  --  Gitea is primary).
 func (c *GitHubClient) LinkBranch(ctx context.Context, owner, repo string, issueNumber int, branch string) error {
 	return nil

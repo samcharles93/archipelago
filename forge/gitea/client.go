@@ -351,6 +351,12 @@ func (c *GiteaClient) ClosePR(ctx context.Context, owner, repo string, number in
 	return err
 }
 
+// MergePR merges a pull request with a merge commit.
+func (c *GiteaClient) MergePR(ctx context.Context, owner, repo string, number int) error {
+	_, _, err := c.cli.MergePullRequest(owner, repo, int64(number), gitea.MergePullRequestOption{Style: gitea.MergeStyleMerge})
+	return err
+}
+
 // React adds an emoji reaction to an issue.
 func (c *GiteaClient) React(ctx context.Context, owner, repo string, number int, reaction string) error {
 	_, _, err := c.cli.PostIssueReaction(owner, repo, int64(number), reaction)
