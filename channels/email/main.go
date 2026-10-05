@@ -1,300 +1,252 @@
-// Command email is the email chat channel: it receives mail over SMTP, routes
-// the body through the gateway, and replies through an SMTP relay. Settings:
-// listen_addr (default :2525), relay_addr, relay_user, and relay_pass_ref
-// ("engine:key" of the relay password).
+// Command email is the email chat channel. It polls a mailbox over IMAP, routes
+// mail from allowed, authenticated senders through the gateway, and replies
+// over SMTP. Settings: imap_addr (host:993, implicit TLS), smtp_addr (host:587,
+// STARTTLS), username, password_ref ("engine:key"), allowed_senders
+// (comma-separated addresses), authserv_id (the mail provider's
+// Authentication-Results id, such as "mx.google.com") and poll_interval
+// (default 30s).
 package main
 
 import (
-	"bufio"
 	"context"
-	"crypto/tls"
 	"errors"
 	"fmt"
 	"io"
 	"log/slog"
-	"net"
-	"net/smtp"
 	"strings"
+	"time"
+
+	"github.com/emersion/go-imap/v2"
+	"github.com/emersion/go-imap/v2/imapclient"
+	"github.com/emersion/go-message/mail"
+	"github.com/emersion/go-msgauth/authres"
+	"github.com/emersion/go-sasl"
+	"github.com/emersion/go-smtp"
 
 	"github.com/samcharles93/archipelago/sdk/channel"
 	gatewayv1 "github.com/samcharles93/archipelago/sdk/gateway/v1"
 )
 
-type gateway struct {
-	chat                            gatewayv1.ChatServiceClient
-	relayAddr, relayUser, relayPass string
-	log                             *slog.Logger
+type settings struct {
+	imapAddr, smtpAddr, username, password, authservID string
+	allowed                                            map[string]bool
+	poll                                               time.Duration
 }
 
 func main() { channel.Serve(run) }
 
 func run(ctx context.Context, cfg channel.Config, chat gatewayv1.ChatServiceClient, lifecycle channel.Lifecycle) error {
 	lifecycle.Starting()
-	listen := cfg.Settings["listen_addr"]
-	if listen == "" {
-		listen = ":2525"
-	}
-	g := &gateway{
-		chat:      chat,
-		relayAddr: cfg.Settings["relay_addr"],
-		relayUser: cfg.Settings["relay_user"],
-		relayPass: cfg.Secrets["relay_pass"],
-		log:       slog.Default().With("component", "email"),
-	}
-	var lc net.ListenConfig
-	ln, err := lc.Listen(ctx, "tcp", listen)
+	s, err := parseSettings(cfg)
 	if err != nil {
-		return fmt.Errorf("email: listen %s: %w", listen, err)
+		return err
 	}
-	g.log.Info("email channel listening", "addr", listen)
+	log := slog.Default().With("component", "email")
+	client, err := imapclient.DialTLS(s.imapAddr, nil)
+	if err != nil {
+		return fmt.Errorf("email: dial %s: %w", s.imapAddr, err)
+	}
+	defer client.Close()
+	if err := client.Login(s.username, s.password).Wait(); err != nil {
+		return fmt.Errorf("email: imap login: %w", err)
+	}
+	if _, err := client.Select("INBOX", nil).Wait(); err != nil {
+		return fmt.Errorf("email: select INBOX: %w", err)
+	}
 	lifecycle.Running()
-	go func() {
-		<-ctx.Done()
-		_ = ln.Close()
-	}()
+	ticker := time.NewTicker(s.poll)
+	defer ticker.Stop()
 	for {
-		conn, err := ln.Accept()
-		if err != nil {
-			if ctx.Err() != nil || errors.Is(err, net.ErrClosed) {
-				return nil
-			}
-			g.log.Error("email accept", "err", err)
-			continue
+		// A failed poll ends the run; the host restarts the channel.
+		if err := poll(ctx, client, s, chat, log); err != nil {
+			return err
 		}
-		go g.handleSMTP(ctx, conn)
-	}
-}
-
-// handleSMTP processes one SMTP session.
-func (g *gateway) handleSMTP(ctx context.Context, conn net.Conn) {
-	defer func() { _ = conn.Close() }()
-	r := bufio.NewReader(conn)
-	w := bufio.NewWriter(conn)
-
-	write := func(code int, msg string) {
-		_, _ = fmt.Fprintf(w, "%d %s\r\n", code, msg)
-		_ = w.Flush()
-	}
-	readLine := func() (string, error) {
-		line, err := r.ReadString('\n')
-		if err != nil {
-			return "", err
-		}
-		return strings.TrimRight(line, "\r\n"), nil
-	}
-
-	write(220, "archie email gateway ready")
-
-	var mailFrom, rcptTo string
-	var dataBuf strings.Builder
-	inData := false
-
-	for {
-		line, err := readLine()
-		if err != nil {
-			return
-		}
-
-		switch {
-		case inData:
-			if line == "." {
-				// End of DATA — process the message.
-				g.processMessage(ctx, mailFrom, rcptTo, dataBuf.String())
-				write(250, "OK: message accepted")
-				return
-			}
-			if strings.HasPrefix(line, "..") {
-				line = line[1:]
-			}
-			dataBuf.WriteString(line)
-			dataBuf.WriteString("\r\n")
-
-		case strings.HasPrefix(strings.ToUpper(line), "MAIL FROM:"):
-			mailFrom = extractAddr(line)
-			write(250, "OK")
-
-		case strings.HasPrefix(strings.ToUpper(line), "RCPT TO:"):
-			rcptTo = extractAddr(line)
-			write(250, "OK")
-
-		case strings.HasPrefix(strings.ToUpper(line), "DATA"):
-			write(354, "Start mail input; end with <CRLF>.<CRLF>")
-			inData = true
-
-		case strings.HasPrefix(strings.ToUpper(line), "QUIT"):
-			write(221, "Bye")
-			return
-
-		case strings.HasPrefix(strings.ToUpper(line), "EHLO"), strings.HasPrefix(strings.ToUpper(line), "HELO"):
-			write(250, "OK")
-
-		default:
-			write(500, "Unrecognized command")
+		select {
+		case <-ctx.Done():
+			_ = client.Logout().Wait()
+			return nil
+		case <-ticker.C:
 		}
 	}
 }
 
-// extractAddr pulls the email address from an SMTP command line like
-// "MAIL FROM:<user@example.com>" or "RCPT TO:<user@example.com>".
-func extractAddr(line string) string {
-	start := strings.IndexByte(line, '<')
-	end := strings.LastIndexByte(line, '>')
-	if start >= 0 && end > start {
-		return strings.TrimSpace(line[start+1 : end])
+func parseSettings(cfg channel.Config) (settings, error) {
+	s := settings{
+		imapAddr:   cfg.Settings["imap_addr"],
+		smtpAddr:   cfg.Settings["smtp_addr"],
+		username:   cfg.Settings["username"],
+		password:   cfg.Secrets["password"],
+		authservID: cfg.Settings["authserv_id"],
+		allowed:    map[string]bool{},
+		poll:       30 * time.Second,
 	}
-	return strings.TrimSpace(line)
+	for addr := range strings.SplitSeq(cfg.Settings["allowed_senders"], ",") {
+		if addr = strings.ToLower(strings.TrimSpace(addr)); addr != "" {
+			s.allowed[addr] = true
+		}
+	}
+	if v := cfg.Settings["poll_interval"]; v != "" {
+		d, err := time.ParseDuration(v)
+		if err != nil || d <= 0 {
+			return s, fmt.Errorf("email: poll_interval %q must be a positive duration", v)
+		}
+		s.poll = d
+	}
+	if s.imapAddr == "" || s.smtpAddr == "" || s.username == "" || s.password == "" || s.authservID == "" || len(s.allowed) == 0 {
+		return s, errors.New("email: imap_addr, smtp_addr, username, password_ref, authserv_id and allowed_senders are required")
+	}
+	return s, nil
 }
 
-// processMessage extracts text from the raw email and routes it through
-// the messaging chat contract. Replies are sent back via SMTP.
-func (g *gateway) processMessage(ctx context.Context, from, to, raw string) {
-	// Extract plain text body: everything after the first blank line
-	// following Content-Type or headers.
-	text := extractBody(raw)
+// poll routes every unseen message once, marking each seen whether or not it
+// was accepted so a rejected message is not reconsidered.
+func poll(ctx context.Context, client *imapclient.Client, s settings, chat gatewayv1.ChatServiceClient, log *slog.Logger) error {
+	found, err := client.UIDSearch(&imap.SearchCriteria{NotFlag: []imap.Flag{imap.FlagSeen}}, nil).Wait()
+	if err != nil {
+		return fmt.Errorf("email: search: %w", err)
+	}
+	uids := found.AllUIDs()
+	if len(uids) == 0 {
+		return nil
+	}
+	section := &imap.FetchItemBodySection{Peek: true}
+	messages, err := client.Fetch(imap.UIDSetNum(uids...), &imap.FetchOptions{UID: true, BodySection: []*imap.FetchItemBodySection{section}}).Collect()
+	if err != nil {
+		return fmt.Errorf("email: fetch: %w", err)
+	}
+	for _, msg := range messages {
+		if err := handle(ctx, s, chat, msg.FindBodySection(section)); err != nil {
+			log.Warn("email message not routed", "uid", msg.UID, "err", err)
+		}
+	}
+	seen := &imap.StoreFlags{Op: imap.StoreFlagsAdd, Silent: true, Flags: []imap.Flag{imap.FlagSeen}}
+	if err := client.Store(imap.UIDSetNum(uids...), seen, nil).Close(); err != nil {
+		return fmt.Errorf("email: mark seen: %w", err)
+	}
+	return nil
+}
 
-	// The channel names the platform it carries, which is how the gateway
-	// learns it is serving email.
-	reply, err := g.chat.Route(ctx, &gatewayv1.RouteRequest{Message: &gatewayv1.Message{
-		ChannelId: to,
-		From:      from,
-		SenderId:  from,
+// handle routes one raw message and sends the reply.
+func handle(ctx context.Context, s settings, chat gatewayv1.ChatServiceClient, raw []byte) error {
+	reader, err := mail.CreateReader(strings.NewReader(string(raw)))
+	if err != nil {
+		return fmt.Errorf("parse: %w", err)
+	}
+	from, err := reader.Header.AddressList("From")
+	if err != nil || len(from) != 1 {
+		return errors.New("message needs exactly one From address")
+	}
+	sender := strings.ToLower(from[0].Address)
+	if !s.allowed[sender] {
+		return fmt.Errorf("sender %q is not allowed", sender)
+	}
+	if !authenticated(reader.Header, s.authservID, sender) {
+		return fmt.Errorf("sender %q failed DMARC/DKIM at %s", sender, s.authservID)
+	}
+	text, err := plainText(reader)
+	if err != nil {
+		return err
+	}
+	reply, err := chat.Route(ctx, &gatewayv1.RouteRequest{Message: &gatewayv1.Message{
+		ChannelId: s.username,
+		From:      sender,
+		SenderId:  sender,
 		Text:      text,
 		Platform:  "email",
 	}})
 	if err != nil {
-		g.log.Error("email route", "err", err, "from", from)
-		return
+		return fmt.Errorf("route: %w", err)
 	}
-
-	if reply.GetText() != "" && g.relayAddr != "" {
-		if err := g.sendReply(from, to, reply.GetText()); err != nil {
-			g.log.Error("email reply", "err", err, "to", from)
-		}
+	if reply.GetText() == "" {
+		return nil
 	}
+	subject, _ := reader.Header.Subject()
+	messageID, _ := reader.Header.MessageID()
+	return sendReply(s, sender, subject, messageID, reply.GetText())
 }
 
-// extractBody pulls the plain text body from a raw email.
-func extractBody(raw string) string {
-	// Find the message body: after headers (blank line).
-	parts := strings.SplitN(raw, "\r\n\r\n", 2)
-	if len(parts) < 2 {
-		parts = strings.SplitN(raw, "\n\n", 2)
-	}
-	if len(parts) < 2 {
-		return strings.TrimSpace(raw)
-	}
-
-	headers := parts[0]
-	body := parts[1]
-
-	// If multipart, look for the text/plain section.
-	if strings.Contains(strings.ToLower(headers), "content-type: multipart") {
-		if text := extractMultipartText(headers, body); text != "" {
-			return text
-		}
-	}
-
-	// Non-multipart: strip trailing SMTP dots.
-	return strings.TrimSpace(body)
-}
-
-// extractMultipartText looks for a text/plain section within a multipart
-// body. Returns the trimmed text body or an empty string when not found.
-func extractMultipartText(headers, body string) string {
-	idx := strings.Index(strings.ToLower(headers), "boundary=")
-	if idx < 0 {
-		return ""
-	}
-	boundary := extractBoundary(headers[idx:])
-	if boundary == "" {
-		return ""
-	}
-	sections := strings.SplitSeq(body, "--"+boundary)
-	for sec := range sections {
-		if !strings.Contains(strings.ToLower(sec), "content-type: text/plain") {
+// authenticated reports whether the provider's own Authentication-Results
+// header shows DMARC pass, or a DKIM pass signed by the From domain. Headers
+// stamped by any other authserv-id are ignored: a sender can forge those.
+func authenticated(header mail.Header, authservID, sender string) bool {
+	domain := sender[strings.LastIndex(sender, "@")+1:]
+	for _, value := range header.Values("Authentication-Results") {
+		id, results, err := authres.Parse(value)
+		if err != nil || !strings.EqualFold(id, authservID) {
 			continue
 		}
-		if parts := strings.SplitN(sec, "\r\n\r\n", 2); len(parts) == 2 {
-			return strings.TrimSpace(strings.TrimRight(parts[1], "\r\n-"))
-		}
-		if parts := strings.SplitN(sec, "\n\n", 2); len(parts) == 2 {
-			return strings.TrimSpace(strings.TrimRight(parts[1], "\n-"))
-		}
-	}
-	return ""
-}
-
-func extractBoundary(line string) string {
-	// boundary="xxx" or boundary=xxx
-	line = strings.TrimPrefix(line, "boundary=")
-	line = strings.TrimSpace(line)
-	line = strings.Trim(line, "\"")
-	// Stop at semicolon or whitespace.
-	if idx := strings.IndexAny(line, " ;\r\n"); idx >= 0 {
-		return line[:idx]
-	}
-	return line
-}
-
-// sendReply delivers a reply to the original sender via SMTP relay.
-func (g *gateway) sendReply(to, from, text string) error {
-	msg := fmt.Sprintf("From: %s\r\nTo: %s\r\nSubject: Re: %s\r\n\r\n%s",
-		from, to, truncateSubject(text), text)
-
-	var auth smtp.Auth
-	if g.relayUser != "" {
-		host, _, _ := net.SplitHostPort(g.relayAddr)
-		auth = smtp.PlainAuth("", g.relayUser, g.relayPass, host)
-	}
-
-	// Try TLS first, fall back to plain.
-	c, err := smtp.Dial(g.relayAddr)
-	if err != nil {
-		return fmt.Errorf("dial relay: %w", err)
-	}
-	defer func() { _ = c.Close() }()
-
-	if ok, _ := c.Extension("STARTTLS"); ok {
-		tlsCfg := &tls.Config{ServerName: serverName(g.relayAddr)}
-		if err := c.StartTLS(tlsCfg); err != nil {
-			return fmt.Errorf("starttls: %w", err)
+		for _, result := range results {
+			switch r := result.(type) {
+			case *authres.DMARCResult:
+				if r.Value == authres.ResultPass {
+					return true
+				}
+			case *authres.DKIMResult:
+				if r.Value == authres.ResultPass && strings.EqualFold(r.Domain, domain) {
+					return true
+				}
+			}
 		}
 	}
+	return false
+}
 
-	if auth != nil {
-		if err := c.Auth(auth); err != nil {
-			g.log.Warn("email relay auth failed", "err", err)
+// plainText returns the first text/plain part.
+func plainText(reader *mail.Reader) (string, error) {
+	for {
+		part, err := reader.NextPart()
+		if errors.Is(err, io.EOF) {
+			return "", errors.New("message has no text/plain part")
 		}
+		if err != nil {
+			return "", fmt.Errorf("read part: %w", err)
+		}
+		inline, ok := part.Header.(*mail.InlineHeader)
+		if !ok {
+			continue
+		}
+		if contentType, _, _ := inline.ContentType(); contentType != "text/plain" {
+			continue
+		}
+		body, err := io.ReadAll(part.Body)
+		if err != nil {
+			return "", fmt.Errorf("read body: %w", err)
+		}
+		return strings.TrimSpace(string(body)), nil
 	}
-
-	if err := c.Mail(from); err != nil {
-		return fmt.Errorf("mail from: %w", err)
-	}
-	if err := c.Rcpt(to); err != nil {
-		return fmt.Errorf("rcpt to: %w", err)
-	}
-	wc, err := c.Data()
-	if err != nil {
-		return fmt.Errorf("data: %w", err)
-	}
-	_, err = io.WriteString(wc, msg)
-	if err != nil {
-		return fmt.Errorf("write: %w", err)
-	}
-	return wc.Close()
 }
 
-func serverName(addr string) string {
-	host, _, err := net.SplitHostPort(addr)
-	if err != nil {
-		return "localhost"
+func sendReply(s settings, to, subject, inReplyTo, text string) error {
+	if !strings.HasPrefix(strings.ToLower(subject), "re:") {
+		subject = "Re: " + subject
 	}
-	return host
-}
+	var header mail.Header
+	header.SetAddressList("From", []*mail.Address{{Address: s.username}})
+	header.SetAddressList("To", []*mail.Address{{Address: to}})
+	header.SetSubject(subject)
+	header.SetDate(time.Now())
+	if err := header.GenerateMessageID(); err != nil {
+		return err
+	}
+	if inReplyTo != "" {
+		header.SetMsgIDList("In-Reply-To", []string{inReplyTo})
+	}
+	header.SetContentType("text/plain", map[string]string{"charset": "utf-8"})
 
-func truncateSubject(text string) string {
-	if len(text) > 60 {
-		return text[:57] + "..."
+	var body strings.Builder
+	writer, err := mail.CreateSingleInlineWriter(&body, header)
+	if err != nil {
+		return err
 	}
-	return text
+	if _, err := io.WriteString(writer, text); err != nil {
+		return err
+	}
+	if err := writer.Close(); err != nil {
+		return err
+	}
+	auth := sasl.NewPlainClient("", s.username, s.password)
+	if err := smtp.SendMail(s.smtpAddr, auth, s.username, []string{to}, strings.NewReader(body.String())); err != nil {
+		return fmt.Errorf("send reply: %w", err)
+	}
+	return nil
 }
