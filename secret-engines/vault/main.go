@@ -21,6 +21,11 @@ func resolve(ctx context.Context, key string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	// The key reaches the vault CLI as arguments; a leading "-" would be read
+	// as a flag such as -address.
+	if strings.HasPrefix(path, "-") || field == "" {
+		return "", fmt.Errorf("key %q is not a valid path/field", key)
+	}
 	value, err := secretengine.Run(ctx, "vault", "kv", "get", "-field="+field, path)
 	if err != nil {
 		return "", fmt.Errorf("read %s/%s: %w", path, field, err)

@@ -20,6 +20,27 @@ Regenerate `sdk/` from it with `buf generate ../archie-core/proto --path
 ../archie-core/proto/<surface>`. An extension can be written in any language;
 the Go SDK is a convenience.
 
+## Safety
+
+An extension runs with the operator's accounts and talks to the outside world,
+so every one of them holds to these before it ships:
+
+- **Inbound is authenticated before it is acted on.** Identity comes only from
+  something the extension or a trusted upstream verified (a provider's
+  DMARC/DKIM result, a host-verified webhook signature), never from a field the
+  sender writes. Unauthenticated input is dropped.
+- **Protocols come from maintained libraries** (go-imap, go-smtp, go-github,
+  the Gitea SDK). No hand-written protocol code.
+- **No listening ports.** An extension dials out; inbound reaches it through
+  the host.
+- **Operator data outside the extension's job is left untouched.** It changes
+  only what it acted on (the email channel marks only routed mail read).
+- **Authority is declared in package.yaml** (env, egress hosts), and nothing
+  else is assumed. Input that reaches a CLI is validated so it cannot become a
+  flag.
+- **The security check has a table test** covering forged and wrong-party
+  input.
+
 ## Publish and install
 
 ```
