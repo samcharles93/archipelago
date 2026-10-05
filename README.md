@@ -13,6 +13,7 @@ playbooks/<name>/        package.yaml + EDA playbook YAML, projected into eda-pl
 profiles/<name>/         package.yaml + agent profile YAML, projected into agent-profiles
 sdk/                     generated surface stubs and the Serve helper
 scripts/pack.sh          build one package and push it to a registry
+scripts/publish.sh       pack every package and publish the signed catalogue
 ```
 
 A surface's contract is the gRPC service in archie-core's `proto/<surface>/v1`.
@@ -43,12 +44,19 @@ so every one of them holds to these before it ships:
 
 ## Publish and install
 
+Every push to `main` packs each package to `ghcr.io/samcharles93/archipelago`
+and publishes the catalogue that lists them, signed with the
+`ARCHIPELAGO_CATALOGUE_KEY` secret. archie-core trusts that catalogue's key,
+so its Extensions page lists every package with an Install button.
+
+For a package under development, pack it to a local registry and install it by
+reference:
+
 ```
 scripts/pack.sh secret-engines/bws localhost:5001/bws:1.0.0   # prints the digest
 ```
 
-Install the printed digest from the Extensions page, accept the authority the
-package declares, then enable it. An extension runs only while all three hold.
+Then accept the authority the package declares, and enable it. An extension runs only while all three hold.
 A data package (no `main.go`) needs only the install: its files are projected
 into the matching resource and withdrawn when the package is removed.
 
