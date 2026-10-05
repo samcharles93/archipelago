@@ -13,6 +13,7 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
+	"slices"
 	"strings"
 	"time"
 
@@ -56,9 +57,10 @@ func run(ctx context.Context, cfg channel.Config, chat gatewayv1.ChatServiceClie
 	lifecycle.Running()
 	ticker := time.NewTicker(s.poll)
 	defer ticker.Stop()
+	skipped := map[imap.UID]bool{}
 	for {
 		// A failed poll ends the run; the host restarts the channel.
-		if err := poll(ctx, client, s, chat, log); err != nil {
+		if err := poll(ctx, client, s, chat, skipped, log); err != nil {
 			return err
 		}
 		select {
@@ -98,14 +100,15 @@ func parseSettings(cfg channel.Config) (settings, error) {
 	return s, nil
 }
 
-// poll routes every unseen message once, marking each seen whether or not it
-// was accepted so a rejected message is not reconsidered.
-func poll(ctx context.Context, client *imapclient.Client, s settings, chat gatewayv1.ChatServiceClient, log *slog.Logger) error {
+// poll routes each unseen message once. Only routed mail is marked seen, so
+// mail the channel ignores keeps its unread state; skipped remembers it for the
+// life of the process instead.
+func poll(ctx context.Context, client *imapclient.Client, s settings, chat gatewayv1.ChatServiceClient, skipped map[imap.UID]bool, log *slog.Logger) error {
 	found, err := client.UIDSearch(&imap.SearchCriteria{NotFlag: []imap.Flag{imap.FlagSeen}}, nil).Wait()
 	if err != nil {
 		return fmt.Errorf("email: search: %w", err)
 	}
-	uids := found.AllUIDs()
+	uids := slices.DeleteFunc(found.AllUIDs(), func(uid imap.UID) bool { return skipped[uid] })
 	if len(uids) == 0 {
 		return nil
 	}
@@ -114,13 +117,20 @@ func poll(ctx context.Context, client *imapclient.Client, s settings, chat gatew
 	if err != nil {
 		return fmt.Errorf("email: fetch: %w", err)
 	}
+	var routed []imap.UID
 	for _, msg := range messages {
 		if err := handle(ctx, s, chat, msg.FindBodySection(section)); err != nil {
 			log.Warn("email message not routed", "uid", msg.UID, "err", err)
+			skipped[msg.UID] = true
+			continue
 		}
+		routed = append(routed, msg.UID)
+	}
+	if len(routed) == 0 {
+		return nil
 	}
 	seen := &imap.StoreFlags{Op: imap.StoreFlagsAdd, Silent: true, Flags: []imap.Flag{imap.FlagSeen}}
-	if err := client.Store(imap.UIDSetNum(uids...), seen, nil).Close(); err != nil {
+	if err := client.Store(imap.UIDSetNum(routed...), seen, nil).Close(); err != nil {
 		return fmt.Errorf("email: mark seen: %w", err)
 	}
 	return nil

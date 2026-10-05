@@ -1,7 +1,7 @@
 apiVersion: dev.archie.package.v1
 displayName: Email channel
 description: "Email chat channel: polls a mailbox over IMAP, routes mail from allowed, DMARC/DKIM-authenticated senders, replies over SMTP."
-version: 2.0.0
+version: 1.0.0
 contributes:
   extensions:
     - surface: channel
