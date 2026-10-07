@@ -9,6 +9,9 @@ contributes:
 authority:
   env:
     - BWS_ACCESS_TOKEN
+  egressHosts:
+    - api.bitwarden.com
+    - identity.bitwarden.com
 files:
   - path: bin/bws
     mode: 493
