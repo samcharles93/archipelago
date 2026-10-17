@@ -2106,8 +2106,12 @@ type CreateReviewCommentsRequest struct {
 	PullRequest     *PullRequestRef        `protobuf:"bytes,1,opt,name=pull_request,json=pullRequest,proto3" json:"pull_request,omitempty"`
 	ReviewedHeadSha string                 `protobuf:"bytes,2,opt,name=reviewed_head_sha,json=reviewedHeadSha,proto3" json:"reviewed_head_sha,omitempty"`
 	Comments        []*InlineReviewComment `protobuf:"bytes,3,rep,name=comments,proto3" json:"comments,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	// COMMENT or REQUEST_CHANGES; empty means COMMENT.
+	Event string `protobuf:"bytes,4,opt,name=event,proto3" json:"event,omitempty"`
+	// Review body, listing findings that have no line anchor.
+	Body          string `protobuf:"bytes,5,opt,name=body,proto3" json:"body,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *CreateReviewCommentsRequest) Reset() {
@@ -2159,6 +2163,20 @@ func (x *CreateReviewCommentsRequest) GetComments() []*InlineReviewComment {
 		return x.Comments
 	}
 	return nil
+}
+
+func (x *CreateReviewCommentsRequest) GetEvent() string {
+	if x != nil {
+		return x.Event
+	}
+	return ""
+}
+
+func (x *CreateReviewCommentsRequest) GetBody() string {
+	if x != nil {
+		return x.Body
+	}
+	return ""
 }
 
 type CreateReviewCommentsResponse struct {
@@ -3131,11 +3149,13 @@ const file_forge_v1_forge_proto_rawDesc = "" +
 	"\x13InlineReviewComment\x12\x12\n" +
 	"\x04path\x18\x01 \x01(\tR\x04path\x12\x12\n" +
 	"\x04line\x18\x02 \x01(\x05R\x04line\x12\x12\n" +
-	"\x04body\x18\x03 \x01(\tR\x04body\"\xc1\x01\n" +
+	"\x04body\x18\x03 \x01(\tR\x04body\"\xeb\x01\n" +
 	"\x1bCreateReviewCommentsRequest\x12;\n" +
 	"\fpull_request\x18\x01 \x01(\v2\x18.forge.v1.PullRequestRefR\vpullRequest\x12*\n" +
 	"\x11reviewed_head_sha\x18\x02 \x01(\tR\x0freviewedHeadSha\x129\n" +
-	"\bcomments\x18\x03 \x03(\v2\x1d.forge.v1.InlineReviewCommentR\bcomments\"\x1e\n" +
+	"\bcomments\x18\x03 \x03(\v2\x1d.forge.v1.InlineReviewCommentR\bcomments\x12\x14\n" +
+	"\x05event\x18\x04 \x01(\tR\x05event\x12\x12\n" +
+	"\x04body\x18\x05 \x01(\tR\x04body\"\x1e\n" +
 	"\x1cCreateReviewCommentsResponse\"u\n" +
 	"\x11LinkBranchRequest\x12%\n" +
 	"\x04repo\x18\x01 \x01(\v2\x11.forge.v1.RepoRefR\x04repo\x12!\n" +

@@ -238,12 +238,20 @@ func (s *server) CreateReviewComments(ctx context.Context, r *forgev1.CreateRevi
 	if err != nil {
 		return nil, err
 	}
+	event := r.GetEvent()
+	switch event {
+	case "":
+		event = ReviewEventComment
+	case ReviewEventComment, ReviewEventRequestChanges:
+	default:
+		return nil, status.Errorf(codes.InvalidArgument, "review event %q is not COMMENT or REQUEST_CHANGES", event)
+	}
 	pr := r.GetPullRequest()
 	comments := make([]InlineReviewComment, 0, len(r.GetComments()))
 	for _, cm := range r.GetComments() {
 		comments = append(comments, InlineReviewComment{Path: cm.GetPath(), Line: int(cm.GetLine()), Body: cm.GetBody()})
 	}
-	return &forgev1.CreateReviewCommentsResponse{}, fail(c.CreateReviewComments(ctx, pr.GetRepo().GetOwner(), pr.GetRepo().GetRepo(), int(pr.GetNumber()), r.GetReviewedHeadSha(), comments))
+	return &forgev1.CreateReviewCommentsResponse{}, fail(c.CreateReviewComments(ctx, pr.GetRepo().GetOwner(), pr.GetRepo().GetRepo(), int(pr.GetNumber()), r.GetReviewedHeadSha(), ReviewSubmission{Event: event, Body: r.GetBody(), Comments: comments}))
 }
 
 func (s *server) AcceptInvitations(ctx context.Context, _ *forgev1.AcceptInvitationsRequest) (*forgev1.AcceptInvitationsResponse, error) {

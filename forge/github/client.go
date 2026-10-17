@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"io"
 	"log/slog"
@@ -296,10 +295,9 @@ func (c *GitHubClient) ReplyToReview(ctx context.Context, owner, repo string, nu
 	return nil
 }
 
-// CreateReviewComments posts each comment on the PR head's new side, refused
-// if the head moved past reviewedHeadSHA. Failures are joined; the rest are
-// still posted.
-func (c *GitHubClient) CreateReviewComments(ctx context.Context, owner, repo string, number int, reviewedHeadSHA string, comments []forge.InlineReviewComment) error {
+// CreateReviewComments submits the review on the PR head's new side, refused
+// if the head moved past reviewedHeadSHA.
+func (c *GitHubClient) CreateReviewComments(ctx context.Context, owner, repo string, number int, reviewedHeadSHA string, review forge.ReviewSubmission) error {
 	head, err := c.reviewHeadSHA(ctx, owner, repo, number)
 	if err != nil {
 		return err
@@ -307,20 +305,30 @@ func (c *GitHubClient) CreateReviewComments(ctx context.Context, owner, repo str
 	if err := forge.ReviewHeadDrift(owner, repo, number, head, reviewedHeadSHA); err != nil {
 		return err
 	}
-	var errs []error
-	for _, cm := range comments {
-		comment := &github.PullRequestComment{
-			Body:     new(cm.Body),
-			Path:     new(cm.Path),
-			Line:     new(cm.Line),
-			Side:     new("RIGHT"),
-			CommitID: new(head),
-		}
-		if _, _, err := c.gh.PullRequests.CreateComment(ctx, owner, repo, number, comment); err != nil {
-			errs = append(errs, fmt.Errorf("create review comment %s:%d on %s/%s#%d: %w", cm.Path, cm.Line, owner, repo, number, err))
-		}
+	comments := make([]*github.DraftReviewComment, 0, len(review.Comments))
+	for _, cm := range review.Comments {
+		comments = append(comments, &github.DraftReviewComment{
+			Body: new(cm.Body),
+			Path: new(cm.Path),
+			Line: new(cm.Line),
+			Side: new("RIGHT"),
+		})
 	}
-	return errors.Join(errs...)
+	body := review.Body
+	// GitHub rejects a REQUEST_CHANGES review with an empty body.
+	if body == "" && review.Event == forge.ReviewEventRequestChanges {
+		body = "Changes requested."
+	}
+	req := &github.PullRequestReviewRequest{
+		CommitID: new(head),
+		Body:     new(body),
+		Event:    new(review.Event),
+		Comments: comments,
+	}
+	if _, _, err := c.gh.PullRequests.CreateReview(ctx, owner, repo, number, req); err != nil {
+		return fmt.Errorf("create review on %s/%s#%d: %w", owner, repo, number, err)
+	}
+	return nil
 }
 
 // reviewHeadSHA resolves the commit a PR's line numbers are anchored to. A

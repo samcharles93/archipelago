@@ -113,8 +113,22 @@ type InlineReviewComment struct {
 	Body string
 }
 
+// Review events a submission may carry.
+const (
+	ReviewEventComment        = "COMMENT"
+	ReviewEventRequestChanges = "REQUEST_CHANGES"
+)
+
+// ReviewSubmission is one submitted PR review. Body lists findings that have
+// no line anchor.
+type ReviewSubmission struct {
+	Event    string
+	Body     string
+	Comments []InlineReviewComment
+}
+
 type ReviewCommentWriter interface {
-	CreateReviewComments(ctx context.Context, owner, repo string, number int, reviewedHeadSHA string, comments []InlineReviewComment) error
+	CreateReviewComments(ctx context.Context, owner, repo string, number int, reviewedHeadSHA string, review ReviewSubmission) error
 }
 
 // WebhookEvent is a decoded delivery; at most one field is set.

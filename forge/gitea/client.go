@@ -270,9 +270,9 @@ func (c *GiteaClient) ReplyToReview(ctx context.Context, owner, repo string, num
 	return nil
 }
 
-// CreateReviewComments posts the comments as one COMMENT review on the PR's
-// head, refused if the head moved past reviewedHeadSHA.
-func (c *GiteaClient) CreateReviewComments(ctx context.Context, owner, repo string, number int, reviewedHeadSHA string, comments []forge.InlineReviewComment) error {
+// CreateReviewComments submits the review on the PR's head, refused if the
+// head moved past reviewedHeadSHA.
+func (c *GiteaClient) CreateReviewComments(ctx context.Context, owner, repo string, number int, reviewedHeadSHA string, review forge.ReviewSubmission) error {
 	pr, err := c.GetPullRequest(ctx, owner, repo, number)
 	if err != nil {
 		return err
@@ -283,8 +283,8 @@ func (c *GiteaClient) CreateReviewComments(ctx context.Context, owner, repo stri
 	if err := forge.ReviewHeadDrift(owner, repo, number, pr.HeadSHA, reviewedHeadSHA); err != nil {
 		return err
 	}
-	reviewComments := make([]gitea.CreatePullReviewComment, 0, len(comments))
-	for _, cm := range comments {
+	reviewComments := make([]gitea.CreatePullReviewComment, 0, len(review.Comments))
+	for _, cm := range review.Comments {
 		reviewComments = append(reviewComments, gitea.CreatePullReviewComment{
 			Path:       cm.Path,
 			Body:       cm.Body,
@@ -292,7 +292,8 @@ func (c *GiteaClient) CreateReviewComments(ctx context.Context, owner, repo stri
 		})
 	}
 	if _, _, err := c.cli.CreatePullReview(owner, repo, int64(number), gitea.CreatePullReviewOptions{
-		State:    gitea.ReviewStateComment,
+		State:    gitea.ReviewStateType(review.Event),
+		Body:     review.Body,
 		CommitID: pr.HeadSHA,
 		Comments: reviewComments,
 	}); err != nil {
