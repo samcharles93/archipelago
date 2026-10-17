@@ -1,5 +1,5 @@
 apiVersion: dev.archie.package.v1
-displayName: GitHub forge
+displayName: GitHub
 description: GitHub issues, pull requests, reviews and webhooks for archie-core.
 version: 1.0.0
 contributes:
