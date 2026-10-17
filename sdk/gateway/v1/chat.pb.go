@@ -7,6 +7,7 @@
 package gatewayv1
 
 import (
+	v1 "github.com/samcharles93/archipelago/sdk/logging/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
@@ -21,6 +22,102 @@ const (
 	// Verify that runtime/protoimpl is sufficiently up-to-date.
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
+
+type CheckSecretRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Engine        string                 `protobuf:"bytes,1,opt,name=engine,proto3" json:"engine,omitempty"`
+	Key           string                 `protobuf:"bytes,2,opt,name=key,proto3" json:"key,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CheckSecretRequest) Reset() {
+	*x = CheckSecretRequest{}
+	mi := &file_gateway_v1_chat_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CheckSecretRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CheckSecretRequest) ProtoMessage() {}
+
+func (x *CheckSecretRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_gateway_v1_chat_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CheckSecretRequest.ProtoReflect.Descriptor instead.
+func (*CheckSecretRequest) Descriptor() ([]byte, []int) {
+	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *CheckSecretRequest) GetEngine() string {
+	if x != nil {
+		return x.Engine
+	}
+	return ""
+}
+
+func (x *CheckSecretRequest) GetKey() string {
+	if x != nil {
+		return x.Key
+	}
+	return ""
+}
+
+type CheckSecretResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Resolved      bool                   `protobuf:"varint,1,opt,name=resolved,proto3" json:"resolved,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CheckSecretResponse) Reset() {
+	*x = CheckSecretResponse{}
+	mi := &file_gateway_v1_chat_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CheckSecretResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CheckSecretResponse) ProtoMessage() {}
+
+func (x *CheckSecretResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_gateway_v1_chat_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CheckSecretResponse.ProtoReflect.Descriptor instead.
+func (*CheckSecretResponse) Descriptor() ([]byte, []int) {
+	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *CheckSecretResponse) GetResolved() bool {
+	if x != nil {
+		return x.Resolved
+	}
+	return false
+}
 
 type Session struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
@@ -40,7 +137,7 @@ type Session struct {
 
 func (x *Session) Reset() {
 	*x = Session{}
-	mi := &file_gateway_v1_chat_proto_msgTypes[0]
+	mi := &file_gateway_v1_chat_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -52,7 +149,7 @@ func (x *Session) String() string {
 func (*Session) ProtoMessage() {}
 
 func (x *Session) ProtoReflect() protoreflect.Message {
-	mi := &file_gateway_v1_chat_proto_msgTypes[0]
+	mi := &file_gateway_v1_chat_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -65,7 +162,7 @@ func (x *Session) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Session.ProtoReflect.Descriptor instead.
 func (*Session) Descriptor() ([]byte, []int) {
-	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{0}
+	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *Session) GetSessionId() string {
@@ -169,7 +266,7 @@ type Message struct {
 
 func (x *Message) Reset() {
 	*x = Message{}
-	mi := &file_gateway_v1_chat_proto_msgTypes[1]
+	mi := &file_gateway_v1_chat_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -181,7 +278,7 @@ func (x *Message) String() string {
 func (*Message) ProtoMessage() {}
 
 func (x *Message) ProtoReflect() protoreflect.Message {
-	mi := &file_gateway_v1_chat_proto_msgTypes[1]
+	mi := &file_gateway_v1_chat_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -194,7 +291,7 @@ func (x *Message) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Message.ProtoReflect.Descriptor instead.
 func (*Message) Descriptor() ([]byte, []int) {
-	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{1}
+	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *Message) GetMessageId() string {
@@ -287,7 +384,7 @@ type ToolCall struct {
 
 func (x *ToolCall) Reset() {
 	*x = ToolCall{}
-	mi := &file_gateway_v1_chat_proto_msgTypes[2]
+	mi := &file_gateway_v1_chat_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -299,7 +396,7 @@ func (x *ToolCall) String() string {
 func (*ToolCall) ProtoMessage() {}
 
 func (x *ToolCall) ProtoReflect() protoreflect.Message {
-	mi := &file_gateway_v1_chat_proto_msgTypes[2]
+	mi := &file_gateway_v1_chat_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -312,7 +409,7 @@ func (x *ToolCall) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ToolCall.ProtoReflect.Descriptor instead.
 func (*ToolCall) Descriptor() ([]byte, []int) {
-	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{2}
+	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *ToolCall) GetId() string {
@@ -376,7 +473,7 @@ type Media struct {
 
 func (x *Media) Reset() {
 	*x = Media{}
-	mi := &file_gateway_v1_chat_proto_msgTypes[3]
+	mi := &file_gateway_v1_chat_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -388,7 +485,7 @@ func (x *Media) String() string {
 func (*Media) ProtoMessage() {}
 
 func (x *Media) ProtoReflect() protoreflect.Message {
-	mi := &file_gateway_v1_chat_proto_msgTypes[3]
+	mi := &file_gateway_v1_chat_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -401,7 +498,7 @@ func (x *Media) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Media.ProtoReflect.Descriptor instead.
 func (*Media) Descriptor() ([]byte, []int) {
-	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{3}
+	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *Media) GetToolName() string {
@@ -510,7 +607,7 @@ type Turn struct {
 
 func (x *Turn) Reset() {
 	*x = Turn{}
-	mi := &file_gateway_v1_chat_proto_msgTypes[4]
+	mi := &file_gateway_v1_chat_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -522,7 +619,7 @@ func (x *Turn) String() string {
 func (*Turn) ProtoMessage() {}
 
 func (x *Turn) ProtoReflect() protoreflect.Message {
-	mi := &file_gateway_v1_chat_proto_msgTypes[4]
+	mi := &file_gateway_v1_chat_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -535,7 +632,7 @@ func (x *Turn) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Turn.ProtoReflect.Descriptor instead.
 func (*Turn) Descriptor() ([]byte, []int) {
-	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{4}
+	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *Turn) GetTurnId() string {
@@ -645,7 +742,7 @@ type StringList struct {
 
 func (x *StringList) Reset() {
 	*x = StringList{}
-	mi := &file_gateway_v1_chat_proto_msgTypes[5]
+	mi := &file_gateway_v1_chat_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -657,7 +754,7 @@ func (x *StringList) String() string {
 func (*StringList) ProtoMessage() {}
 
 func (x *StringList) ProtoReflect() protoreflect.Message {
-	mi := &file_gateway_v1_chat_proto_msgTypes[5]
+	mi := &file_gateway_v1_chat_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -670,7 +767,7 @@ func (x *StringList) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StringList.ProtoReflect.Descriptor instead.
 func (*StringList) Descriptor() ([]byte, []int) {
-	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{5}
+	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *StringList) GetValues() []string {
@@ -688,7 +785,7 @@ type SnapshotRequest struct {
 
 func (x *SnapshotRequest) Reset() {
 	*x = SnapshotRequest{}
-	mi := &file_gateway_v1_chat_proto_msgTypes[6]
+	mi := &file_gateway_v1_chat_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -700,7 +797,7 @@ func (x *SnapshotRequest) String() string {
 func (*SnapshotRequest) ProtoMessage() {}
 
 func (x *SnapshotRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gateway_v1_chat_proto_msgTypes[6]
+	mi := &file_gateway_v1_chat_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -713,7 +810,7 @@ func (x *SnapshotRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SnapshotRequest.ProtoReflect.Descriptor instead.
 func (*SnapshotRequest) Descriptor() ([]byte, []int) {
-	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{6}
+	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{8}
 }
 
 type SnapshotResponse struct {
@@ -724,19 +821,17 @@ type SnapshotResponse struct {
 	Providers             []string               `protobuf:"bytes,4,rep,name=providers,proto3" json:"providers,omitempty"`
 	ActiveModel           string                 `protobuf:"bytes,5,opt,name=active_model,json=activeModel,proto3" json:"active_model,omitempty"`
 	ActiveProvider        string                 `protobuf:"bytes,6,opt,name=active_provider,json=activeProvider,proto3" json:"active_provider,omitempty"`
-	Personas              []string               `protobuf:"bytes,7,rep,name=personas,proto3" json:"personas,omitempty"`
-	ActivePersonas        map[string]string      `protobuf:"bytes,8,rep,name=active_personas,json=activePersonas,proto3" json:"active_personas,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	RestartAvailable      bool                   `protobuf:"varint,9,opt,name=restart_available,json=restartAvailable,proto3" json:"restart_available,omitempty"`
 	CancellationAvailable bool                   `protobuf:"varint,10,opt,name=cancellation_available,json=cancellationAvailable,proto3" json:"cancellation_available,omitempty"`
-	PersonasAvailable     bool                   `protobuf:"varint,11,opt,name=personas_available,json=personasAvailable,proto3" json:"personas_available,omitempty"`
 	Version               string                 `protobuf:"bytes,12,opt,name=version,proto3" json:"version,omitempty"`
+	VoiceAvailable        bool                   `protobuf:"varint,13,opt,name=voice_available,json=voiceAvailable,proto3" json:"voice_available,omitempty"`
 	unknownFields         protoimpl.UnknownFields
 	sizeCache             protoimpl.SizeCache
 }
 
 func (x *SnapshotResponse) Reset() {
 	*x = SnapshotResponse{}
-	mi := &file_gateway_v1_chat_proto_msgTypes[7]
+	mi := &file_gateway_v1_chat_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -748,7 +843,7 @@ func (x *SnapshotResponse) String() string {
 func (*SnapshotResponse) ProtoMessage() {}
 
 func (x *SnapshotResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gateway_v1_chat_proto_msgTypes[7]
+	mi := &file_gateway_v1_chat_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -761,7 +856,7 @@ func (x *SnapshotResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SnapshotResponse.ProtoReflect.Descriptor instead.
 func (*SnapshotResponse) Descriptor() ([]byte, []int) {
-	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{7}
+	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *SnapshotResponse) GetSessions() []*Session {
@@ -806,20 +901,6 @@ func (x *SnapshotResponse) GetActiveProvider() string {
 	return ""
 }
 
-func (x *SnapshotResponse) GetPersonas() []string {
-	if x != nil {
-		return x.Personas
-	}
-	return nil
-}
-
-func (x *SnapshotResponse) GetActivePersonas() map[string]string {
-	if x != nil {
-		return x.ActivePersonas
-	}
-	return nil
-}
-
 func (x *SnapshotResponse) GetRestartAvailable() bool {
 	if x != nil {
 		return x.RestartAvailable
@@ -834,18 +915,18 @@ func (x *SnapshotResponse) GetCancellationAvailable() bool {
 	return false
 }
 
-func (x *SnapshotResponse) GetPersonasAvailable() bool {
-	if x != nil {
-		return x.PersonasAvailable
-	}
-	return false
-}
-
 func (x *SnapshotResponse) GetVersion() string {
 	if x != nil {
 		return x.Version
 	}
 	return ""
+}
+
+func (x *SnapshotResponse) GetVoiceAvailable() bool {
+	if x != nil {
+		return x.VoiceAvailable
+	}
+	return false
 }
 
 type GetSessionRequest struct {
@@ -857,7 +938,7 @@ type GetSessionRequest struct {
 
 func (x *GetSessionRequest) Reset() {
 	*x = GetSessionRequest{}
-	mi := &file_gateway_v1_chat_proto_msgTypes[8]
+	mi := &file_gateway_v1_chat_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -869,7 +950,7 @@ func (x *GetSessionRequest) String() string {
 func (*GetSessionRequest) ProtoMessage() {}
 
 func (x *GetSessionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gateway_v1_chat_proto_msgTypes[8]
+	mi := &file_gateway_v1_chat_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -882,7 +963,7 @@ func (x *GetSessionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetSessionRequest.ProtoReflect.Descriptor instead.
 func (*GetSessionRequest) Descriptor() ([]byte, []int) {
-	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{8}
+	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *GetSessionRequest) GetSessionId() string {
@@ -902,7 +983,7 @@ type GetSessionResponse struct {
 
 func (x *GetSessionResponse) Reset() {
 	*x = GetSessionResponse{}
-	mi := &file_gateway_v1_chat_proto_msgTypes[9]
+	mi := &file_gateway_v1_chat_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -914,7 +995,7 @@ func (x *GetSessionResponse) String() string {
 func (*GetSessionResponse) ProtoMessage() {}
 
 func (x *GetSessionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gateway_v1_chat_proto_msgTypes[9]
+	mi := &file_gateway_v1_chat_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -927,7 +1008,7 @@ func (x *GetSessionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetSessionResponse.ProtoReflect.Descriptor instead.
 func (*GetSessionResponse) Descriptor() ([]byte, []int) {
-	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{9}
+	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *GetSessionResponse) GetSession() *Session {
@@ -954,7 +1035,7 @@ type RecentMessagesRequest struct {
 
 func (x *RecentMessagesRequest) Reset() {
 	*x = RecentMessagesRequest{}
-	mi := &file_gateway_v1_chat_proto_msgTypes[10]
+	mi := &file_gateway_v1_chat_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -966,7 +1047,7 @@ func (x *RecentMessagesRequest) String() string {
 func (*RecentMessagesRequest) ProtoMessage() {}
 
 func (x *RecentMessagesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gateway_v1_chat_proto_msgTypes[10]
+	mi := &file_gateway_v1_chat_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -979,7 +1060,7 @@ func (x *RecentMessagesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RecentMessagesRequest.ProtoReflect.Descriptor instead.
 func (*RecentMessagesRequest) Descriptor() ([]byte, []int) {
-	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{10}
+	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *RecentMessagesRequest) GetSessionId() string {
@@ -1005,7 +1086,7 @@ type RecentMessagesResponse struct {
 
 func (x *RecentMessagesResponse) Reset() {
 	*x = RecentMessagesResponse{}
-	mi := &file_gateway_v1_chat_proto_msgTypes[11]
+	mi := &file_gateway_v1_chat_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1017,7 +1098,7 @@ func (x *RecentMessagesResponse) String() string {
 func (*RecentMessagesResponse) ProtoMessage() {}
 
 func (x *RecentMessagesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gateway_v1_chat_proto_msgTypes[11]
+	mi := &file_gateway_v1_chat_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1030,7 +1111,7 @@ func (x *RecentMessagesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RecentMessagesResponse.ProtoReflect.Descriptor instead.
 func (*RecentMessagesResponse) Descriptor() ([]byte, []int) {
-	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{11}
+	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *RecentMessagesResponse) GetMessages() []*Message {
@@ -1050,7 +1131,7 @@ type RecentTurnsRequest struct {
 
 func (x *RecentTurnsRequest) Reset() {
 	*x = RecentTurnsRequest{}
-	mi := &file_gateway_v1_chat_proto_msgTypes[12]
+	mi := &file_gateway_v1_chat_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1062,7 +1143,7 @@ func (x *RecentTurnsRequest) String() string {
 func (*RecentTurnsRequest) ProtoMessage() {}
 
 func (x *RecentTurnsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gateway_v1_chat_proto_msgTypes[12]
+	mi := &file_gateway_v1_chat_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1075,7 +1156,7 @@ func (x *RecentTurnsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RecentTurnsRequest.ProtoReflect.Descriptor instead.
 func (*RecentTurnsRequest) Descriptor() ([]byte, []int) {
-	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{12}
+	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *RecentTurnsRequest) GetSessionId() string {
@@ -1101,7 +1182,7 @@ type RecentTurnsResponse struct {
 
 func (x *RecentTurnsResponse) Reset() {
 	*x = RecentTurnsResponse{}
-	mi := &file_gateway_v1_chat_proto_msgTypes[13]
+	mi := &file_gateway_v1_chat_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1113,7 +1194,7 @@ func (x *RecentTurnsResponse) String() string {
 func (*RecentTurnsResponse) ProtoMessage() {}
 
 func (x *RecentTurnsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gateway_v1_chat_proto_msgTypes[13]
+	mi := &file_gateway_v1_chat_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1126,7 +1207,7 @@ func (x *RecentTurnsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RecentTurnsResponse.ProtoReflect.Descriptor instead.
 func (*RecentTurnsResponse) Descriptor() ([]byte, []int) {
-	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{13}
+	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *RecentTurnsResponse) GetTurns() []*Turn {
@@ -1145,7 +1226,7 @@ type RouteRequest struct {
 
 func (x *RouteRequest) Reset() {
 	*x = RouteRequest{}
-	mi := &file_gateway_v1_chat_proto_msgTypes[14]
+	mi := &file_gateway_v1_chat_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1157,7 +1238,7 @@ func (x *RouteRequest) String() string {
 func (*RouteRequest) ProtoMessage() {}
 
 func (x *RouteRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gateway_v1_chat_proto_msgTypes[14]
+	mi := &file_gateway_v1_chat_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1170,7 +1251,7 @@ func (x *RouteRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RouteRequest.ProtoReflect.Descriptor instead.
 func (*RouteRequest) Descriptor() ([]byte, []int) {
-	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{14}
+	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *RouteRequest) GetMessage() *Message {
@@ -1193,7 +1274,7 @@ type RouteResponse struct {
 
 func (x *RouteResponse) Reset() {
 	*x = RouteResponse{}
-	mi := &file_gateway_v1_chat_proto_msgTypes[15]
+	mi := &file_gateway_v1_chat_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1205,7 +1286,7 @@ func (x *RouteResponse) String() string {
 func (*RouteResponse) ProtoMessage() {}
 
 func (x *RouteResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gateway_v1_chat_proto_msgTypes[15]
+	mi := &file_gateway_v1_chat_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1218,7 +1299,7 @@ func (x *RouteResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RouteResponse.ProtoReflect.Descriptor instead.
 func (*RouteResponse) Descriptor() ([]byte, []int) {
-	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{15}
+	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *RouteResponse) GetText() string {
@@ -1242,16 +1323,20 @@ func (x *RouteResponse) GetRateLimited() bool {
 	return false
 }
 
+// The caller states which asks it can answer; the turn offers only those.
 type StreamRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Message       *Message               `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
+	CanApprove    bool                   `protobuf:"varint,2,opt,name=can_approve,json=canApprove,proto3" json:"can_approve,omitempty"`
+	CanClarify    bool                   `protobuf:"varint,3,opt,name=can_clarify,json=canClarify,proto3" json:"can_clarify,omitempty"`
+	CanPick       bool                   `protobuf:"varint,4,opt,name=can_pick,json=canPick,proto3" json:"can_pick,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *StreamRequest) Reset() {
 	*x = StreamRequest{}
-	mi := &file_gateway_v1_chat_proto_msgTypes[16]
+	mi := &file_gateway_v1_chat_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1263,7 +1348,7 @@ func (x *StreamRequest) String() string {
 func (*StreamRequest) ProtoMessage() {}
 
 func (x *StreamRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gateway_v1_chat_proto_msgTypes[16]
+	mi := &file_gateway_v1_chat_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1276,7 +1361,7 @@ func (x *StreamRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StreamRequest.ProtoReflect.Descriptor instead.
 func (*StreamRequest) Descriptor() ([]byte, []int) {
-	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{16}
+	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *StreamRequest) GetMessage() *Message {
@@ -1286,6 +1371,256 @@ func (x *StreamRequest) GetMessage() *Message {
 	return nil
 }
 
+func (x *StreamRequest) GetCanApprove() bool {
+	if x != nil {
+		return x.CanApprove
+	}
+	return false
+}
+
+func (x *StreamRequest) GetCanClarify() bool {
+	if x != nil {
+		return x.CanClarify
+	}
+	return false
+}
+
+func (x *StreamRequest) GetCanPick() bool {
+	if x != nil {
+		return x.CanPick
+	}
+	return false
+}
+
+// Ask is a question the turn blocks on until Answer names its id.
+type Ask struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Id    string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// approval, clarify or picker.
+	Kind   string `protobuf:"bytes,2,opt,name=kind,proto3" json:"kind,omitempty"`
+	Prompt string `protobuf:"bytes,3,opt,name=prompt,proto3" json:"prompt,omitempty"`
+	// Tool description, for an approval.
+	Detail        string    `protobuf:"bytes,4,opt,name=detail,proto3" json:"detail,omitempty"`
+	Choices       []*Choice `protobuf:"bytes,5,rep,name=choices,proto3" json:"choices,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Ask) Reset() {
+	*x = Ask{}
+	mi := &file_gateway_v1_chat_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Ask) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Ask) ProtoMessage() {}
+
+func (x *Ask) ProtoReflect() protoreflect.Message {
+	mi := &file_gateway_v1_chat_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Ask.ProtoReflect.Descriptor instead.
+func (*Ask) Descriptor() ([]byte, []int) {
+	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *Ask) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *Ask) GetKind() string {
+	if x != nil {
+		return x.Kind
+	}
+	return ""
+}
+
+func (x *Ask) GetPrompt() string {
+	if x != nil {
+		return x.Prompt
+	}
+	return ""
+}
+
+func (x *Ask) GetDetail() string {
+	if x != nil {
+		return x.Detail
+	}
+	return ""
+}
+
+func (x *Ask) GetChoices() []*Choice {
+	if x != nil {
+		return x.Choices
+	}
+	return nil
+}
+
+type Choice struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Label         string                 `protobuf:"bytes,2,opt,name=label,proto3" json:"label,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Choice) Reset() {
+	*x = Choice{}
+	mi := &file_gateway_v1_chat_proto_msgTypes[20]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Choice) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Choice) ProtoMessage() {}
+
+func (x *Choice) ProtoReflect() protoreflect.Message {
+	mi := &file_gateway_v1_chat_proto_msgTypes[20]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Choice.ProtoReflect.Descriptor instead.
+func (*Choice) Descriptor() ([]byte, []int) {
+	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{20}
+}
+
+func (x *Choice) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *Choice) GetLabel() string {
+	if x != nil {
+		return x.Label
+	}
+	return ""
+}
+
+// For an approval, answer is approve, always or deny; for a picker, the
+// choice id; for a clarify, the reply text.
+type AnswerRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	AskId         string                 `protobuf:"bytes,1,opt,name=ask_id,json=askId,proto3" json:"ask_id,omitempty"`
+	Answer        string                 `protobuf:"bytes,2,opt,name=answer,proto3" json:"answer,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AnswerRequest) Reset() {
+	*x = AnswerRequest{}
+	mi := &file_gateway_v1_chat_proto_msgTypes[21]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AnswerRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AnswerRequest) ProtoMessage() {}
+
+func (x *AnswerRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_gateway_v1_chat_proto_msgTypes[21]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AnswerRequest.ProtoReflect.Descriptor instead.
+func (*AnswerRequest) Descriptor() ([]byte, []int) {
+	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{21}
+}
+
+func (x *AnswerRequest) GetAskId() string {
+	if x != nil {
+		return x.AskId
+	}
+	return ""
+}
+
+func (x *AnswerRequest) GetAnswer() string {
+	if x != nil {
+		return x.Answer
+	}
+	return ""
+}
+
+type AnswerResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Found         bool                   `protobuf:"varint,1,opt,name=found,proto3" json:"found,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AnswerResponse) Reset() {
+	*x = AnswerResponse{}
+	mi := &file_gateway_v1_chat_proto_msgTypes[22]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AnswerResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AnswerResponse) ProtoMessage() {}
+
+func (x *AnswerResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_gateway_v1_chat_proto_msgTypes[22]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AnswerResponse.ProtoReflect.Descriptor instead.
+func (*AnswerResponse) Descriptor() ([]byte, []int) {
+	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{22}
+}
+
+func (x *AnswerResponse) GetFound() bool {
+	if x != nil {
+		return x.Found
+	}
+	return false
+}
+
 type StreamResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Kind          string                 `protobuf:"bytes,1,opt,name=kind,proto3" json:"kind,omitempty"`
@@ -1293,13 +1628,14 @@ type StreamResponse struct {
 	SessionId     string                 `protobuf:"bytes,3,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`
 	Tool          *ToolCall              `protobuf:"bytes,4,opt,name=tool,proto3" json:"tool,omitempty"`
 	Media         *Media                 `protobuf:"bytes,5,opt,name=media,proto3" json:"media,omitempty"`
+	Ask           *Ask                   `protobuf:"bytes,6,opt,name=ask,proto3" json:"ask,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *StreamResponse) Reset() {
 	*x = StreamResponse{}
-	mi := &file_gateway_v1_chat_proto_msgTypes[17]
+	mi := &file_gateway_v1_chat_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1311,7 +1647,7 @@ func (x *StreamResponse) String() string {
 func (*StreamResponse) ProtoMessage() {}
 
 func (x *StreamResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gateway_v1_chat_proto_msgTypes[17]
+	mi := &file_gateway_v1_chat_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1324,7 +1660,7 @@ func (x *StreamResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StreamResponse.ProtoReflect.Descriptor instead.
 func (*StreamResponse) Descriptor() ([]byte, []int) {
-	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{17}
+	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *StreamResponse) GetKind() string {
@@ -1362,6 +1698,13 @@ func (x *StreamResponse) GetMedia() *Media {
 	return nil
 }
 
+func (x *StreamResponse) GetAsk() *Ask {
+	if x != nil {
+		return x.Ask
+	}
+	return nil
+}
+
 type CancelRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	SessionId     string                 `protobuf:"bytes,1,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`
@@ -1371,7 +1714,7 @@ type CancelRequest struct {
 
 func (x *CancelRequest) Reset() {
 	*x = CancelRequest{}
-	mi := &file_gateway_v1_chat_proto_msgTypes[18]
+	mi := &file_gateway_v1_chat_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1383,7 +1726,7 @@ func (x *CancelRequest) String() string {
 func (*CancelRequest) ProtoMessage() {}
 
 func (x *CancelRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gateway_v1_chat_proto_msgTypes[18]
+	mi := &file_gateway_v1_chat_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1396,7 +1739,7 @@ func (x *CancelRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CancelRequest.ProtoReflect.Descriptor instead.
 func (*CancelRequest) Descriptor() ([]byte, []int) {
-	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{18}
+	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *CancelRequest) GetSessionId() string {
@@ -1416,7 +1759,7 @@ type CancelResponse struct {
 
 func (x *CancelResponse) Reset() {
 	*x = CancelResponse{}
-	mi := &file_gateway_v1_chat_proto_msgTypes[19]
+	mi := &file_gateway_v1_chat_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1428,7 +1771,7 @@ func (x *CancelResponse) String() string {
 func (*CancelResponse) ProtoMessage() {}
 
 func (x *CancelResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gateway_v1_chat_proto_msgTypes[19]
+	mi := &file_gateway_v1_chat_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1441,7 +1784,7 @@ func (x *CancelResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CancelResponse.ProtoReflect.Descriptor instead.
 func (*CancelResponse) Descriptor() ([]byte, []int) {
-	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{19}
+	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *CancelResponse) GetCancelled() bool {
@@ -1458,29 +1801,31 @@ func (x *CancelResponse) GetDropped() int64 {
 	return 0
 }
 
-type SetPersonaRequest struct {
+// StopTasksRequest stops task_id, or with task_id zero every queued or running
+// task the conversation origin created.
+type StopTasksRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	SessionId     string                 `protobuf:"bytes,1,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`
-	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Origin        string                 `protobuf:"bytes,1,opt,name=origin,proto3" json:"origin,omitempty"`
+	TaskId        int64                  `protobuf:"varint,2,opt,name=task_id,json=taskId,proto3" json:"task_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *SetPersonaRequest) Reset() {
-	*x = SetPersonaRequest{}
-	mi := &file_gateway_v1_chat_proto_msgTypes[20]
+func (x *StopTasksRequest) Reset() {
+	*x = StopTasksRequest{}
+	mi := &file_gateway_v1_chat_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *SetPersonaRequest) String() string {
+func (x *StopTasksRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*SetPersonaRequest) ProtoMessage() {}
+func (*StopTasksRequest) ProtoMessage() {}
 
-func (x *SetPersonaRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gateway_v1_chat_proto_msgTypes[20]
+func (x *StopTasksRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_gateway_v1_chat_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1491,47 +1836,49 @@ func (x *SetPersonaRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use SetPersonaRequest.ProtoReflect.Descriptor instead.
-func (*SetPersonaRequest) Descriptor() ([]byte, []int) {
-	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{20}
+// Deprecated: Use StopTasksRequest.ProtoReflect.Descriptor instead.
+func (*StopTasksRequest) Descriptor() ([]byte, []int) {
+	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{26}
 }
 
-func (x *SetPersonaRequest) GetSessionId() string {
+func (x *StopTasksRequest) GetOrigin() string {
 	if x != nil {
-		return x.SessionId
+		return x.Origin
 	}
 	return ""
 }
 
-func (x *SetPersonaRequest) GetName() string {
+func (x *StopTasksRequest) GetTaskId() int64 {
 	if x != nil {
-		return x.Name
+		return x.TaskId
 	}
-	return ""
+	return 0
 }
 
-type SetPersonaResponse struct {
+// error reports tasks that could not be stopped alongside those that were.
+type StopTasksResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Found         bool                   `protobuf:"varint,1,opt,name=found,proto3" json:"found,omitempty"`
+	Stopped       []int64                `protobuf:"varint,1,rep,packed,name=stopped,proto3" json:"stopped,omitempty"`
+	Error         string                 `protobuf:"bytes,2,opt,name=error,proto3" json:"error,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *SetPersonaResponse) Reset() {
-	*x = SetPersonaResponse{}
-	mi := &file_gateway_v1_chat_proto_msgTypes[21]
+func (x *StopTasksResponse) Reset() {
+	*x = StopTasksResponse{}
+	mi := &file_gateway_v1_chat_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *SetPersonaResponse) String() string {
+func (x *StopTasksResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*SetPersonaResponse) ProtoMessage() {}
+func (*StopTasksResponse) ProtoMessage() {}
 
-func (x *SetPersonaResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gateway_v1_chat_proto_msgTypes[21]
+func (x *StopTasksResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_gateway_v1_chat_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1542,16 +1889,23 @@ func (x *SetPersonaResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use SetPersonaResponse.ProtoReflect.Descriptor instead.
-func (*SetPersonaResponse) Descriptor() ([]byte, []int) {
-	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{21}
+// Deprecated: Use StopTasksResponse.ProtoReflect.Descriptor instead.
+func (*StopTasksResponse) Descriptor() ([]byte, []int) {
+	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{27}
 }
 
-func (x *SetPersonaResponse) GetFound() bool {
+func (x *StopTasksResponse) GetStopped() []int64 {
 	if x != nil {
-		return x.Found
+		return x.Stopped
 	}
-	return false
+	return nil
+}
+
+func (x *StopTasksResponse) GetError() string {
+	if x != nil {
+		return x.Error
+	}
+	return ""
 }
 
 type ApplyTaskActionRequest struct {
@@ -1567,7 +1921,7 @@ type ApplyTaskActionRequest struct {
 
 func (x *ApplyTaskActionRequest) Reset() {
 	*x = ApplyTaskActionRequest{}
-	mi := &file_gateway_v1_chat_proto_msgTypes[22]
+	mi := &file_gateway_v1_chat_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1579,7 +1933,7 @@ func (x *ApplyTaskActionRequest) String() string {
 func (*ApplyTaskActionRequest) ProtoMessage() {}
 
 func (x *ApplyTaskActionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gateway_v1_chat_proto_msgTypes[22]
+	mi := &file_gateway_v1_chat_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1592,7 +1946,7 @@ func (x *ApplyTaskActionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ApplyTaskActionRequest.ProtoReflect.Descriptor instead.
 func (*ApplyTaskActionRequest) Descriptor() ([]byte, []int) {
-	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{22}
+	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *ApplyTaskActionRequest) GetIdentity() string {
@@ -1641,7 +1995,7 @@ type ApplyTaskActionResponse struct {
 
 func (x *ApplyTaskActionResponse) Reset() {
 	*x = ApplyTaskActionResponse{}
-	mi := &file_gateway_v1_chat_proto_msgTypes[23]
+	mi := &file_gateway_v1_chat_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1653,7 +2007,7 @@ func (x *ApplyTaskActionResponse) String() string {
 func (*ApplyTaskActionResponse) ProtoMessage() {}
 
 func (x *ApplyTaskActionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gateway_v1_chat_proto_msgTypes[23]
+	mi := &file_gateway_v1_chat_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1666,7 +2020,7 @@ func (x *ApplyTaskActionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ApplyTaskActionResponse.ProtoReflect.Descriptor instead.
 func (*ApplyTaskActionResponse) Descriptor() ([]byte, []int) {
-	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{23}
+	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *ApplyTaskActionResponse) GetTaskId() int64 {
@@ -1720,14 +2074,17 @@ type ApplyOperatorTaskActionRequest struct {
 	// and chat carries no mode syntax -- an empty value means refresh_onto_base.
 	RetryMode string `protobuf:"bytes,8,opt,name=retry_mode,json=retryMode,proto3" json:"retry_mode,omitempty"`
 	// resume_from is the stage a retry starts at; empty runs every stage.
-	ResumeFrom    string `protobuf:"bytes,9,opt,name=resume_from,json=resumeFrom,proto3" json:"resume_from,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	ResumeFrom string `protobuf:"bytes,9,opt,name=resume_from,json=resumeFrom,proto3" json:"resume_from,omitempty"`
+	// current_definition moves a retry onto the workflow's current stored
+	// definition instead of the one the run is pinned to.
+	CurrentDefinition bool `protobuf:"varint,10,opt,name=current_definition,json=currentDefinition,proto3" json:"current_definition,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *ApplyOperatorTaskActionRequest) Reset() {
 	*x = ApplyOperatorTaskActionRequest{}
-	mi := &file_gateway_v1_chat_proto_msgTypes[24]
+	mi := &file_gateway_v1_chat_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1739,7 +2096,7 @@ func (x *ApplyOperatorTaskActionRequest) String() string {
 func (*ApplyOperatorTaskActionRequest) ProtoMessage() {}
 
 func (x *ApplyOperatorTaskActionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gateway_v1_chat_proto_msgTypes[24]
+	mi := &file_gateway_v1_chat_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1752,7 +2109,7 @@ func (x *ApplyOperatorTaskActionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ApplyOperatorTaskActionRequest.ProtoReflect.Descriptor instead.
 func (*ApplyOperatorTaskActionRequest) Descriptor() ([]byte, []int) {
-	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{24}
+	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *ApplyOperatorTaskActionRequest) GetTaskId() int64 {
@@ -1818,6 +2175,13 @@ func (x *ApplyOperatorTaskActionRequest) GetResumeFrom() string {
 	return ""
 }
 
+func (x *ApplyOperatorTaskActionRequest) GetCurrentDefinition() bool {
+	if x != nil {
+		return x.CurrentDefinition
+	}
+	return false
+}
+
 type ApplyOperatorTaskActionResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	TaskId        int64                  `protobuf:"varint,1,opt,name=task_id,json=taskId,proto3" json:"task_id,omitempty"`
@@ -1829,7 +2193,7 @@ type ApplyOperatorTaskActionResponse struct {
 
 func (x *ApplyOperatorTaskActionResponse) Reset() {
 	*x = ApplyOperatorTaskActionResponse{}
-	mi := &file_gateway_v1_chat_proto_msgTypes[25]
+	mi := &file_gateway_v1_chat_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1841,7 +2205,7 @@ func (x *ApplyOperatorTaskActionResponse) String() string {
 func (*ApplyOperatorTaskActionResponse) ProtoMessage() {}
 
 func (x *ApplyOperatorTaskActionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gateway_v1_chat_proto_msgTypes[25]
+	mi := &file_gateway_v1_chat_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1854,7 +2218,7 @@ func (x *ApplyOperatorTaskActionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ApplyOperatorTaskActionResponse.ProtoReflect.Descriptor instead.
 func (*ApplyOperatorTaskActionResponse) Descriptor() ([]byte, []int) {
-	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{25}
+	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{31}
 }
 
 func (x *ApplyOperatorTaskActionResponse) GetTaskId() int64 {
@@ -1886,7 +2250,7 @@ type SaveSessionResponse struct {
 
 func (x *SaveSessionResponse) Reset() {
 	*x = SaveSessionResponse{}
-	mi := &file_gateway_v1_chat_proto_msgTypes[26]
+	mi := &file_gateway_v1_chat_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1898,7 +2262,7 @@ func (x *SaveSessionResponse) String() string {
 func (*SaveSessionResponse) ProtoMessage() {}
 
 func (x *SaveSessionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gateway_v1_chat_proto_msgTypes[26]
+	mi := &file_gateway_v1_chat_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1911,7 +2275,7 @@ func (x *SaveSessionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SaveSessionResponse.ProtoReflect.Descriptor instead.
 func (*SaveSessionResponse) Descriptor() ([]byte, []int) {
-	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{26}
+	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{32}
 }
 
 type SaveSessionRequest struct {
@@ -1923,7 +2287,7 @@ type SaveSessionRequest struct {
 
 func (x *SaveSessionRequest) Reset() {
 	*x = SaveSessionRequest{}
-	mi := &file_gateway_v1_chat_proto_msgTypes[27]
+	mi := &file_gateway_v1_chat_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1935,7 +2299,7 @@ func (x *SaveSessionRequest) String() string {
 func (*SaveSessionRequest) ProtoMessage() {}
 
 func (x *SaveSessionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gateway_v1_chat_proto_msgTypes[27]
+	mi := &file_gateway_v1_chat_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1948,7 +2312,7 @@ func (x *SaveSessionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SaveSessionRequest.ProtoReflect.Descriptor instead.
 func (*SaveSessionRequest) Descriptor() ([]byte, []int) {
-	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{27}
+	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{33}
 }
 
 func (x *SaveSessionRequest) GetSession() *Session {
@@ -1968,7 +2332,7 @@ type GetSessionsByChannelRequest struct {
 
 func (x *GetSessionsByChannelRequest) Reset() {
 	*x = GetSessionsByChannelRequest{}
-	mi := &file_gateway_v1_chat_proto_msgTypes[28]
+	mi := &file_gateway_v1_chat_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1980,7 +2344,7 @@ func (x *GetSessionsByChannelRequest) String() string {
 func (*GetSessionsByChannelRequest) ProtoMessage() {}
 
 func (x *GetSessionsByChannelRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gateway_v1_chat_proto_msgTypes[28]
+	mi := &file_gateway_v1_chat_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1993,7 +2357,7 @@ func (x *GetSessionsByChannelRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetSessionsByChannelRequest.ProtoReflect.Descriptor instead.
 func (*GetSessionsByChannelRequest) Descriptor() ([]byte, []int) {
-	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{28}
+	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{34}
 }
 
 func (x *GetSessionsByChannelRequest) GetPlatform() string {
@@ -2019,7 +2383,7 @@ type GetSessionsByChannelResponse struct {
 
 func (x *GetSessionsByChannelResponse) Reset() {
 	*x = GetSessionsByChannelResponse{}
-	mi := &file_gateway_v1_chat_proto_msgTypes[29]
+	mi := &file_gateway_v1_chat_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2031,7 +2395,7 @@ func (x *GetSessionsByChannelResponse) String() string {
 func (*GetSessionsByChannelResponse) ProtoMessage() {}
 
 func (x *GetSessionsByChannelResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gateway_v1_chat_proto_msgTypes[29]
+	mi := &file_gateway_v1_chat_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2044,7 +2408,7 @@ func (x *GetSessionsByChannelResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetSessionsByChannelResponse.ProtoReflect.Descriptor instead.
 func (*GetSessionsByChannelResponse) Descriptor() ([]byte, []int) {
-	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{29}
+	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{35}
 }
 
 func (x *GetSessionsByChannelResponse) GetSessions() []*Session {
@@ -2063,7 +2427,7 @@ type ListSessionsResponse struct {
 
 func (x *ListSessionsResponse) Reset() {
 	*x = ListSessionsResponse{}
-	mi := &file_gateway_v1_chat_proto_msgTypes[30]
+	mi := &file_gateway_v1_chat_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2075,7 +2439,7 @@ func (x *ListSessionsResponse) String() string {
 func (*ListSessionsResponse) ProtoMessage() {}
 
 func (x *ListSessionsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gateway_v1_chat_proto_msgTypes[30]
+	mi := &file_gateway_v1_chat_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2088,7 +2452,7 @@ func (x *ListSessionsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListSessionsResponse.ProtoReflect.Descriptor instead.
 func (*ListSessionsResponse) Descriptor() ([]byte, []int) {
-	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{30}
+	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{36}
 }
 
 func (x *ListSessionsResponse) GetSessions() []*Session {
@@ -2106,7 +2470,7 @@ type DeleteSessionResponse struct {
 
 func (x *DeleteSessionResponse) Reset() {
 	*x = DeleteSessionResponse{}
-	mi := &file_gateway_v1_chat_proto_msgTypes[31]
+	mi := &file_gateway_v1_chat_proto_msgTypes[37]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2118,7 +2482,7 @@ func (x *DeleteSessionResponse) String() string {
 func (*DeleteSessionResponse) ProtoMessage() {}
 
 func (x *DeleteSessionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gateway_v1_chat_proto_msgTypes[31]
+	mi := &file_gateway_v1_chat_proto_msgTypes[37]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2131,7 +2495,7 @@ func (x *DeleteSessionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteSessionResponse.ProtoReflect.Descriptor instead.
 func (*DeleteSessionResponse) Descriptor() ([]byte, []int) {
-	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{31}
+	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{37}
 }
 
 type TouchSessionResponse struct {
@@ -2142,7 +2506,7 @@ type TouchSessionResponse struct {
 
 func (x *TouchSessionResponse) Reset() {
 	*x = TouchSessionResponse{}
-	mi := &file_gateway_v1_chat_proto_msgTypes[32]
+	mi := &file_gateway_v1_chat_proto_msgTypes[38]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2154,7 +2518,7 @@ func (x *TouchSessionResponse) String() string {
 func (*TouchSessionResponse) ProtoMessage() {}
 
 func (x *TouchSessionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gateway_v1_chat_proto_msgTypes[32]
+	mi := &file_gateway_v1_chat_proto_msgTypes[38]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2167,7 +2531,7 @@ func (x *TouchSessionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TouchSessionResponse.ProtoReflect.Descriptor instead.
 func (*TouchSessionResponse) Descriptor() ([]byte, []int) {
-	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{32}
+	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{38}
 }
 
 type SaveMessageResponse struct {
@@ -2178,7 +2542,7 @@ type SaveMessageResponse struct {
 
 func (x *SaveMessageResponse) Reset() {
 	*x = SaveMessageResponse{}
-	mi := &file_gateway_v1_chat_proto_msgTypes[33]
+	mi := &file_gateway_v1_chat_proto_msgTypes[39]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2190,7 +2554,7 @@ func (x *SaveMessageResponse) String() string {
 func (*SaveMessageResponse) ProtoMessage() {}
 
 func (x *SaveMessageResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gateway_v1_chat_proto_msgTypes[33]
+	mi := &file_gateway_v1_chat_proto_msgTypes[39]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2203,7 +2567,7 @@ func (x *SaveMessageResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SaveMessageResponse.ProtoReflect.Descriptor instead.
 func (*SaveMessageResponse) Descriptor() ([]byte, []int) {
-	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{33}
+	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{39}
 }
 
 type SaveMessagesResponse struct {
@@ -2214,7 +2578,7 @@ type SaveMessagesResponse struct {
 
 func (x *SaveMessagesResponse) Reset() {
 	*x = SaveMessagesResponse{}
-	mi := &file_gateway_v1_chat_proto_msgTypes[34]
+	mi := &file_gateway_v1_chat_proto_msgTypes[40]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2226,7 +2590,7 @@ func (x *SaveMessagesResponse) String() string {
 func (*SaveMessagesResponse) ProtoMessage() {}
 
 func (x *SaveMessagesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gateway_v1_chat_proto_msgTypes[34]
+	mi := &file_gateway_v1_chat_proto_msgTypes[40]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2239,7 +2603,7 @@ func (x *SaveMessagesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SaveMessagesResponse.ProtoReflect.Descriptor instead.
 func (*SaveMessagesResponse) Descriptor() ([]byte, []int) {
-	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{34}
+	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{40}
 }
 
 type ReplaceMessagesResponse struct {
@@ -2250,7 +2614,7 @@ type ReplaceMessagesResponse struct {
 
 func (x *ReplaceMessagesResponse) Reset() {
 	*x = ReplaceMessagesResponse{}
-	mi := &file_gateway_v1_chat_proto_msgTypes[35]
+	mi := &file_gateway_v1_chat_proto_msgTypes[41]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2262,7 +2626,7 @@ func (x *ReplaceMessagesResponse) String() string {
 func (*ReplaceMessagesResponse) ProtoMessage() {}
 
 func (x *ReplaceMessagesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gateway_v1_chat_proto_msgTypes[35]
+	mi := &file_gateway_v1_chat_proto_msgTypes[41]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2275,7 +2639,7 @@ func (x *ReplaceMessagesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReplaceMessagesResponse.ProtoReflect.Descriptor instead.
 func (*ReplaceMessagesResponse) Descriptor() ([]byte, []int) {
-	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{35}
+	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{41}
 }
 
 type DeleteSessionRequest struct {
@@ -2287,7 +2651,7 @@ type DeleteSessionRequest struct {
 
 func (x *DeleteSessionRequest) Reset() {
 	*x = DeleteSessionRequest{}
-	mi := &file_gateway_v1_chat_proto_msgTypes[36]
+	mi := &file_gateway_v1_chat_proto_msgTypes[42]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2299,7 +2663,7 @@ func (x *DeleteSessionRequest) String() string {
 func (*DeleteSessionRequest) ProtoMessage() {}
 
 func (x *DeleteSessionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gateway_v1_chat_proto_msgTypes[36]
+	mi := &file_gateway_v1_chat_proto_msgTypes[42]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2312,7 +2676,7 @@ func (x *DeleteSessionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteSessionRequest.ProtoReflect.Descriptor instead.
 func (*DeleteSessionRequest) Descriptor() ([]byte, []int) {
-	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{36}
+	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{42}
 }
 
 func (x *DeleteSessionRequest) GetSessionId() string {
@@ -2331,7 +2695,7 @@ type TouchSessionRequest struct {
 
 func (x *TouchSessionRequest) Reset() {
 	*x = TouchSessionRequest{}
-	mi := &file_gateway_v1_chat_proto_msgTypes[37]
+	mi := &file_gateway_v1_chat_proto_msgTypes[43]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2343,7 +2707,7 @@ func (x *TouchSessionRequest) String() string {
 func (*TouchSessionRequest) ProtoMessage() {}
 
 func (x *TouchSessionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gateway_v1_chat_proto_msgTypes[37]
+	mi := &file_gateway_v1_chat_proto_msgTypes[43]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2356,7 +2720,7 @@ func (x *TouchSessionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TouchSessionRequest.ProtoReflect.Descriptor instead.
 func (*TouchSessionRequest) Descriptor() ([]byte, []int) {
-	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{37}
+	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{43}
 }
 
 func (x *TouchSessionRequest) GetSessionId() string {
@@ -2374,7 +2738,7 @@ type ListSessionsRequest struct {
 
 func (x *ListSessionsRequest) Reset() {
 	*x = ListSessionsRequest{}
-	mi := &file_gateway_v1_chat_proto_msgTypes[38]
+	mi := &file_gateway_v1_chat_proto_msgTypes[44]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2386,7 +2750,7 @@ func (x *ListSessionsRequest) String() string {
 func (*ListSessionsRequest) ProtoMessage() {}
 
 func (x *ListSessionsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gateway_v1_chat_proto_msgTypes[38]
+	mi := &file_gateway_v1_chat_proto_msgTypes[44]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2399,7 +2763,7 @@ func (x *ListSessionsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListSessionsRequest.ProtoReflect.Descriptor instead.
 func (*ListSessionsRequest) Descriptor() ([]byte, []int) {
-	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{38}
+	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{44}
 }
 
 type SaveMessageRequest struct {
@@ -2412,7 +2776,7 @@ type SaveMessageRequest struct {
 
 func (x *SaveMessageRequest) Reset() {
 	*x = SaveMessageRequest{}
-	mi := &file_gateway_v1_chat_proto_msgTypes[39]
+	mi := &file_gateway_v1_chat_proto_msgTypes[45]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2424,7 +2788,7 @@ func (x *SaveMessageRequest) String() string {
 func (*SaveMessageRequest) ProtoMessage() {}
 
 func (x *SaveMessageRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gateway_v1_chat_proto_msgTypes[39]
+	mi := &file_gateway_v1_chat_proto_msgTypes[45]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2437,7 +2801,7 @@ func (x *SaveMessageRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SaveMessageRequest.ProtoReflect.Descriptor instead.
 func (*SaveMessageRequest) Descriptor() ([]byte, []int) {
-	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{39}
+	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{45}
 }
 
 func (x *SaveMessageRequest) GetSessionId() string {
@@ -2464,7 +2828,7 @@ type DeleteRecentMessagesRequest struct {
 
 func (x *DeleteRecentMessagesRequest) Reset() {
 	*x = DeleteRecentMessagesRequest{}
-	mi := &file_gateway_v1_chat_proto_msgTypes[40]
+	mi := &file_gateway_v1_chat_proto_msgTypes[46]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2476,7 +2840,7 @@ func (x *DeleteRecentMessagesRequest) String() string {
 func (*DeleteRecentMessagesRequest) ProtoMessage() {}
 
 func (x *DeleteRecentMessagesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gateway_v1_chat_proto_msgTypes[40]
+	mi := &file_gateway_v1_chat_proto_msgTypes[46]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2489,7 +2853,7 @@ func (x *DeleteRecentMessagesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteRecentMessagesRequest.ProtoReflect.Descriptor instead.
 func (*DeleteRecentMessagesRequest) Descriptor() ([]byte, []int) {
-	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{40}
+	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{46}
 }
 
 func (x *DeleteRecentMessagesRequest) GetSessionId() string {
@@ -2515,7 +2879,7 @@ type DeleteRecentMessagesResponse struct {
 
 func (x *DeleteRecentMessagesResponse) Reset() {
 	*x = DeleteRecentMessagesResponse{}
-	mi := &file_gateway_v1_chat_proto_msgTypes[41]
+	mi := &file_gateway_v1_chat_proto_msgTypes[47]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2527,7 +2891,7 @@ func (x *DeleteRecentMessagesResponse) String() string {
 func (*DeleteRecentMessagesResponse) ProtoMessage() {}
 
 func (x *DeleteRecentMessagesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gateway_v1_chat_proto_msgTypes[41]
+	mi := &file_gateway_v1_chat_proto_msgTypes[47]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2540,7 +2904,7 @@ func (x *DeleteRecentMessagesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteRecentMessagesResponse.ProtoReflect.Descriptor instead.
 func (*DeleteRecentMessagesResponse) Descriptor() ([]byte, []int) {
-	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{41}
+	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{47}
 }
 
 func (x *DeleteRecentMessagesResponse) GetDeleted() int64 {
@@ -2559,7 +2923,7 @@ type MessageCountRequest struct {
 
 func (x *MessageCountRequest) Reset() {
 	*x = MessageCountRequest{}
-	mi := &file_gateway_v1_chat_proto_msgTypes[42]
+	mi := &file_gateway_v1_chat_proto_msgTypes[48]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2571,7 +2935,7 @@ func (x *MessageCountRequest) String() string {
 func (*MessageCountRequest) ProtoMessage() {}
 
 func (x *MessageCountRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gateway_v1_chat_proto_msgTypes[42]
+	mi := &file_gateway_v1_chat_proto_msgTypes[48]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2584,7 +2948,7 @@ func (x *MessageCountRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MessageCountRequest.ProtoReflect.Descriptor instead.
 func (*MessageCountRequest) Descriptor() ([]byte, []int) {
-	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{42}
+	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{48}
 }
 
 func (x *MessageCountRequest) GetSessionId() string {
@@ -2603,7 +2967,7 @@ type MessageCountResponse struct {
 
 func (x *MessageCountResponse) Reset() {
 	*x = MessageCountResponse{}
-	mi := &file_gateway_v1_chat_proto_msgTypes[43]
+	mi := &file_gateway_v1_chat_proto_msgTypes[49]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2615,7 +2979,7 @@ func (x *MessageCountResponse) String() string {
 func (*MessageCountResponse) ProtoMessage() {}
 
 func (x *MessageCountResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gateway_v1_chat_proto_msgTypes[43]
+	mi := &file_gateway_v1_chat_proto_msgTypes[49]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2628,7 +2992,7 @@ func (x *MessageCountResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MessageCountResponse.ProtoReflect.Descriptor instead.
 func (*MessageCountResponse) Descriptor() ([]byte, []int) {
-	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{43}
+	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{49}
 }
 
 func (x *MessageCountResponse) GetCount() int64 {
@@ -2648,7 +3012,7 @@ type SaveMessagesRequest struct {
 
 func (x *SaveMessagesRequest) Reset() {
 	*x = SaveMessagesRequest{}
-	mi := &file_gateway_v1_chat_proto_msgTypes[44]
+	mi := &file_gateway_v1_chat_proto_msgTypes[50]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2660,7 +3024,7 @@ func (x *SaveMessagesRequest) String() string {
 func (*SaveMessagesRequest) ProtoMessage() {}
 
 func (x *SaveMessagesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gateway_v1_chat_proto_msgTypes[44]
+	mi := &file_gateway_v1_chat_proto_msgTypes[50]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2673,7 +3037,7 @@ func (x *SaveMessagesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SaveMessagesRequest.ProtoReflect.Descriptor instead.
 func (*SaveMessagesRequest) Descriptor() ([]byte, []int) {
-	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{44}
+	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{50}
 }
 
 func (x *SaveMessagesRequest) GetSessionId() string {
@@ -2701,7 +3065,7 @@ type ReplaceMessagesRequest struct {
 
 func (x *ReplaceMessagesRequest) Reset() {
 	*x = ReplaceMessagesRequest{}
-	mi := &file_gateway_v1_chat_proto_msgTypes[45]
+	mi := &file_gateway_v1_chat_proto_msgTypes[51]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2713,7 +3077,7 @@ func (x *ReplaceMessagesRequest) String() string {
 func (*ReplaceMessagesRequest) ProtoMessage() {}
 
 func (x *ReplaceMessagesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gateway_v1_chat_proto_msgTypes[45]
+	mi := &file_gateway_v1_chat_proto_msgTypes[51]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2726,7 +3090,7 @@ func (x *ReplaceMessagesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReplaceMessagesRequest.ProtoReflect.Descriptor instead.
 func (*ReplaceMessagesRequest) Descriptor() ([]byte, []int) {
-	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{45}
+	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{51}
 }
 
 func (x *ReplaceMessagesRequest) GetSessionId() string {
@@ -2762,7 +3126,7 @@ type SearchMessagesRequest struct {
 
 func (x *SearchMessagesRequest) Reset() {
 	*x = SearchMessagesRequest{}
-	mi := &file_gateway_v1_chat_proto_msgTypes[46]
+	mi := &file_gateway_v1_chat_proto_msgTypes[52]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2774,7 +3138,7 @@ func (x *SearchMessagesRequest) String() string {
 func (*SearchMessagesRequest) ProtoMessage() {}
 
 func (x *SearchMessagesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gateway_v1_chat_proto_msgTypes[46]
+	mi := &file_gateway_v1_chat_proto_msgTypes[52]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2787,7 +3151,7 @@ func (x *SearchMessagesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SearchMessagesRequest.ProtoReflect.Descriptor instead.
 func (*SearchMessagesRequest) Descriptor() ([]byte, []int) {
-	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{46}
+	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{52}
 }
 
 func (x *SearchMessagesRequest) GetSessionId() string {
@@ -2830,7 +3194,7 @@ type SearchMessagesResponse struct {
 
 func (x *SearchMessagesResponse) Reset() {
 	*x = SearchMessagesResponse{}
-	mi := &file_gateway_v1_chat_proto_msgTypes[47]
+	mi := &file_gateway_v1_chat_proto_msgTypes[53]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2842,7 +3206,7 @@ func (x *SearchMessagesResponse) String() string {
 func (*SearchMessagesResponse) ProtoMessage() {}
 
 func (x *SearchMessagesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gateway_v1_chat_proto_msgTypes[47]
+	mi := &file_gateway_v1_chat_proto_msgTypes[53]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2855,7 +3219,7 @@ func (x *SearchMessagesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SearchMessagesResponse.ProtoReflect.Descriptor instead.
 func (*SearchMessagesResponse) Descriptor() ([]byte, []int) {
-	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{47}
+	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{53}
 }
 
 func (x *SearchMessagesResponse) GetMessages() []*Message {
@@ -2897,7 +3261,7 @@ type ListSkillsRequest struct {
 
 func (x *ListSkillsRequest) Reset() {
 	*x = ListSkillsRequest{}
-	mi := &file_gateway_v1_chat_proto_msgTypes[48]
+	mi := &file_gateway_v1_chat_proto_msgTypes[54]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2909,7 +3273,7 @@ func (x *ListSkillsRequest) String() string {
 func (*ListSkillsRequest) ProtoMessage() {}
 
 func (x *ListSkillsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gateway_v1_chat_proto_msgTypes[48]
+	mi := &file_gateway_v1_chat_proto_msgTypes[54]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2922,7 +3286,7 @@ func (x *ListSkillsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListSkillsRequest.ProtoReflect.Descriptor instead.
 func (*ListSkillsRequest) Descriptor() ([]byte, []int) {
-	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{48}
+	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{54}
 }
 
 type ListSkillsResponse struct {
@@ -2934,7 +3298,7 @@ type ListSkillsResponse struct {
 
 func (x *ListSkillsResponse) Reset() {
 	*x = ListSkillsResponse{}
-	mi := &file_gateway_v1_chat_proto_msgTypes[49]
+	mi := &file_gateway_v1_chat_proto_msgTypes[55]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2946,7 +3310,7 @@ func (x *ListSkillsResponse) String() string {
 func (*ListSkillsResponse) ProtoMessage() {}
 
 func (x *ListSkillsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gateway_v1_chat_proto_msgTypes[49]
+	mi := &file_gateway_v1_chat_proto_msgTypes[55]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2959,7 +3323,7 @@ func (x *ListSkillsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListSkillsResponse.ProtoReflect.Descriptor instead.
 func (*ListSkillsResponse) Descriptor() ([]byte, []int) {
-	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{49}
+	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{55}
 }
 
 func (x *ListSkillsResponse) GetSkills() []*Skill {
@@ -2981,7 +3345,7 @@ type Skill struct {
 
 func (x *Skill) Reset() {
 	*x = Skill{}
-	mi := &file_gateway_v1_chat_proto_msgTypes[50]
+	mi := &file_gateway_v1_chat_proto_msgTypes[56]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2993,7 +3357,7 @@ func (x *Skill) String() string {
 func (*Skill) ProtoMessage() {}
 
 func (x *Skill) ProtoReflect() protoreflect.Message {
-	mi := &file_gateway_v1_chat_proto_msgTypes[50]
+	mi := &file_gateway_v1_chat_proto_msgTypes[56]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3006,7 +3370,7 @@ func (x *Skill) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Skill.ProtoReflect.Descriptor instead.
 func (*Skill) Descriptor() ([]byte, []int) {
-	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{50}
+	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{56}
 }
 
 func (x *Skill) GetName() string {
@@ -3047,7 +3411,7 @@ type CuratorHealthRequest struct {
 
 func (x *CuratorHealthRequest) Reset() {
 	*x = CuratorHealthRequest{}
-	mi := &file_gateway_v1_chat_proto_msgTypes[51]
+	mi := &file_gateway_v1_chat_proto_msgTypes[57]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3059,7 +3423,7 @@ func (x *CuratorHealthRequest) String() string {
 func (*CuratorHealthRequest) ProtoMessage() {}
 
 func (x *CuratorHealthRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gateway_v1_chat_proto_msgTypes[51]
+	mi := &file_gateway_v1_chat_proto_msgTypes[57]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3072,7 +3436,7 @@ func (x *CuratorHealthRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CuratorHealthRequest.ProtoReflect.Descriptor instead.
 func (*CuratorHealthRequest) Descriptor() ([]byte, []int) {
-	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{51}
+	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{57}
 }
 
 type CuratorHealthResponse struct {
@@ -3084,7 +3448,7 @@ type CuratorHealthResponse struct {
 
 func (x *CuratorHealthResponse) Reset() {
 	*x = CuratorHealthResponse{}
-	mi := &file_gateway_v1_chat_proto_msgTypes[52]
+	mi := &file_gateway_v1_chat_proto_msgTypes[58]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3096,7 +3460,7 @@ func (x *CuratorHealthResponse) String() string {
 func (*CuratorHealthResponse) ProtoMessage() {}
 
 func (x *CuratorHealthResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gateway_v1_chat_proto_msgTypes[52]
+	mi := &file_gateway_v1_chat_proto_msgTypes[58]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3109,7 +3473,7 @@ func (x *CuratorHealthResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CuratorHealthResponse.ProtoReflect.Descriptor instead.
 func (*CuratorHealthResponse) Descriptor() ([]byte, []int) {
-	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{52}
+	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{58}
 }
 
 func (x *CuratorHealthResponse) GetCurators() []*Curator {
@@ -3133,7 +3497,7 @@ type Curator struct {
 
 func (x *Curator) Reset() {
 	*x = Curator{}
-	mi := &file_gateway_v1_chat_proto_msgTypes[53]
+	mi := &file_gateway_v1_chat_proto_msgTypes[59]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3145,7 +3509,7 @@ func (x *Curator) String() string {
 func (*Curator) ProtoMessage() {}
 
 func (x *Curator) ProtoReflect() protoreflect.Message {
-	mi := &file_gateway_v1_chat_proto_msgTypes[53]
+	mi := &file_gateway_v1_chat_proto_msgTypes[59]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3158,7 +3522,7 @@ func (x *Curator) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Curator.ProtoReflect.Descriptor instead.
 func (*Curator) Descriptor() ([]byte, []int) {
-	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{53}
+	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{59}
 }
 
 func (x *Curator) GetName() string {
@@ -3215,7 +3579,7 @@ type CuratorAction struct {
 
 func (x *CuratorAction) Reset() {
 	*x = CuratorAction{}
-	mi := &file_gateway_v1_chat_proto_msgTypes[54]
+	mi := &file_gateway_v1_chat_proto_msgTypes[60]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3227,7 +3591,7 @@ func (x *CuratorAction) String() string {
 func (*CuratorAction) ProtoMessage() {}
 
 func (x *CuratorAction) ProtoReflect() protoreflect.Message {
-	mi := &file_gateway_v1_chat_proto_msgTypes[54]
+	mi := &file_gateway_v1_chat_proto_msgTypes[60]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3240,7 +3604,7 @@ func (x *CuratorAction) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CuratorAction.ProtoReflect.Descriptor instead.
 func (*CuratorAction) Descriptor() ([]byte, []int) {
-	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{54}
+	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{60}
 }
 
 func (x *CuratorAction) GetAt() *timestamppb.Timestamp {
@@ -3282,7 +3646,7 @@ type ReloadChannelRequest struct {
 
 func (x *ReloadChannelRequest) Reset() {
 	*x = ReloadChannelRequest{}
-	mi := &file_gateway_v1_chat_proto_msgTypes[55]
+	mi := &file_gateway_v1_chat_proto_msgTypes[61]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3294,7 +3658,7 @@ func (x *ReloadChannelRequest) String() string {
 func (*ReloadChannelRequest) ProtoMessage() {}
 
 func (x *ReloadChannelRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gateway_v1_chat_proto_msgTypes[55]
+	mi := &file_gateway_v1_chat_proto_msgTypes[61]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3307,7 +3671,7 @@ func (x *ReloadChannelRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReloadChannelRequest.ProtoReflect.Descriptor instead.
 func (*ReloadChannelRequest) Descriptor() ([]byte, []int) {
-	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{55}
+	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{61}
 }
 
 func (x *ReloadChannelRequest) GetChannelId() string {
@@ -3325,7 +3689,7 @@ type ReloadChannelResponse struct {
 
 func (x *ReloadChannelResponse) Reset() {
 	*x = ReloadChannelResponse{}
-	mi := &file_gateway_v1_chat_proto_msgTypes[56]
+	mi := &file_gateway_v1_chat_proto_msgTypes[62]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3337,7 +3701,7 @@ func (x *ReloadChannelResponse) String() string {
 func (*ReloadChannelResponse) ProtoMessage() {}
 
 func (x *ReloadChannelResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gateway_v1_chat_proto_msgTypes[56]
+	mi := &file_gateway_v1_chat_proto_msgTypes[62]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3350,7 +3714,103 @@ func (x *ReloadChannelResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReloadChannelResponse.ProtoReflect.Descriptor instead.
 func (*ReloadChannelResponse) Descriptor() ([]byte, []int) {
-	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{56}
+	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{62}
+}
+
+type RecentLogsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Query         *v1.LogQuery           `protobuf:"bytes,1,opt,name=query,proto3" json:"query,omitempty"`
+	Service       string                 `protobuf:"bytes,2,opt,name=service,proto3" json:"service,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RecentLogsRequest) Reset() {
+	*x = RecentLogsRequest{}
+	mi := &file_gateway_v1_chat_proto_msgTypes[63]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RecentLogsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RecentLogsRequest) ProtoMessage() {}
+
+func (x *RecentLogsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_gateway_v1_chat_proto_msgTypes[63]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RecentLogsRequest.ProtoReflect.Descriptor instead.
+func (*RecentLogsRequest) Descriptor() ([]byte, []int) {
+	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{63}
+}
+
+func (x *RecentLogsRequest) GetQuery() *v1.LogQuery {
+	if x != nil {
+		return x.Query
+	}
+	return nil
+}
+
+func (x *RecentLogsRequest) GetService() string {
+	if x != nil {
+		return x.Service
+	}
+	return ""
+}
+
+type RecentLogsResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Snapshot      *v1.LogSnapshot        `protobuf:"bytes,1,opt,name=snapshot,proto3" json:"snapshot,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RecentLogsResponse) Reset() {
+	*x = RecentLogsResponse{}
+	mi := &file_gateway_v1_chat_proto_msgTypes[64]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RecentLogsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RecentLogsResponse) ProtoMessage() {}
+
+func (x *RecentLogsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_gateway_v1_chat_proto_msgTypes[64]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RecentLogsResponse.ProtoReflect.Descriptor instead.
+func (*RecentLogsResponse) Descriptor() ([]byte, []int) {
+	return file_gateway_v1_chat_proto_rawDescGZIP(), []int{64}
+}
+
+func (x *RecentLogsResponse) GetSnapshot() *v1.LogSnapshot {
+	if x != nil {
+		return x.Snapshot
+	}
+	return nil
 }
 
 var File_gateway_v1_chat_proto protoreflect.FileDescriptor
@@ -3358,7 +3818,12 @@ var File_gateway_v1_chat_proto protoreflect.FileDescriptor
 const file_gateway_v1_chat_proto_rawDesc = "" +
 	"\n" +
 	"\x15gateway/v1/chat.proto\x12\n" +
-	"gateway.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\xfb\x02\n" +
+	"gateway.v1\x1a\x18logging/v1/logging.proto\x1a\x1fgoogle/protobuf/timestamp.proto\">\n" +
+	"\x12CheckSecretRequest\x12\x16\n" +
+	"\x06engine\x18\x01 \x01(\tR\x06engine\x12\x10\n" +
+	"\x03key\x18\x02 \x01(\tR\x03key\"1\n" +
+	"\x13CheckSecretResponse\x12\x1a\n" +
+	"\bresolved\x18\x01 \x01(\bR\bresolved\"\xfb\x02\n" +
 	"\aSession\x12\x1d\n" +
 	"\n" +
 	"session_id\x18\x01 \x01(\tR\tsessionId\x12\x1a\n" +
@@ -3442,27 +3907,22 @@ const file_gateway_v1_chat_proto_rawDesc = "" +
 	"\n" +
 	"StringList\x12\x16\n" +
 	"\x06values\x18\x01 \x03(\tR\x06values\"\x11\n" +
-	"\x0fSnapshotRequest\"\xeb\x05\n" +
+	"\x0fSnapshotRequest\"\xec\x04\n" +
 	"\x10SnapshotResponse\x12/\n" +
 	"\bsessions\x18\x01 \x03(\v2\x13.gateway.v1.SessionR\bsessions\x12\x16\n" +
 	"\x06models\x18\x02 \x03(\tR\x06models\x12`\n" +
 	"\x12models_by_provider\x18\x03 \x03(\v22.gateway.v1.SnapshotResponse.ModelsByProviderEntryR\x10modelsByProvider\x12\x1c\n" +
 	"\tproviders\x18\x04 \x03(\tR\tproviders\x12!\n" +
 	"\factive_model\x18\x05 \x01(\tR\vactiveModel\x12'\n" +
-	"\x0factive_provider\x18\x06 \x01(\tR\x0eactiveProvider\x12\x1a\n" +
-	"\bpersonas\x18\a \x03(\tR\bpersonas\x12Y\n" +
-	"\x0factive_personas\x18\b \x03(\v20.gateway.v1.SnapshotResponse.ActivePersonasEntryR\x0eactivePersonas\x12+\n" +
+	"\x0factive_provider\x18\x06 \x01(\tR\x0eactiveProvider\x12+\n" +
 	"\x11restart_available\x18\t \x01(\bR\x10restartAvailable\x125\n" +
 	"\x16cancellation_available\x18\n" +
-	" \x01(\bR\x15cancellationAvailable\x12-\n" +
-	"\x12personas_available\x18\v \x01(\bR\x11personasAvailable\x12\x18\n" +
-	"\aversion\x18\f \x01(\tR\aversion\x1a[\n" +
+	" \x01(\bR\x15cancellationAvailable\x12\x18\n" +
+	"\aversion\x18\f \x01(\tR\aversion\x12'\n" +
+	"\x0fvoice_available\x18\r \x01(\bR\x0evoiceAvailable\x1a[\n" +
 	"\x15ModelsByProviderEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12,\n" +
-	"\x05value\x18\x02 \x01(\v2\x16.gateway.v1.StringListR\x05value:\x028\x01\x1aA\n" +
-	"\x13ActivePersonasEntry\x12\x10\n" +
-	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"2\n" +
+	"\x05value\x18\x02 \x01(\v2\x16.gateway.v1.StringListR\x05value:\x028\x01J\x04\b\a\x10\bJ\x04\b\b\x10\tJ\x04\b\v\x10\fR\bpersonasR\x0factive_personasR\x12personas_available\"2\n" +
 	"\x11GetSessionRequest\x12\x1d\n" +
 	"\n" +
 	"session_id\x18\x01 \x01(\tR\tsessionId\"Y\n" +
@@ -3487,28 +3947,48 @@ const file_gateway_v1_chat_proto_rawDesc = "" +
 	"\x04text\x18\x01 \x01(\tR\x04text\x12\x1d\n" +
 	"\n" +
 	"session_id\x18\x02 \x01(\tR\tsessionId\x12!\n" +
-	"\frate_limited\x18\x03 \x01(\bR\vrateLimited\">\n" +
+	"\frate_limited\x18\x03 \x01(\bR\vrateLimited\"\x9b\x01\n" +
 	"\rStreamRequest\x12-\n" +
-	"\amessage\x18\x01 \x01(\v2\x13.gateway.v1.MessageR\amessage\"\xaa\x01\n" +
+	"\amessage\x18\x01 \x01(\v2\x13.gateway.v1.MessageR\amessage\x12\x1f\n" +
+	"\vcan_approve\x18\x02 \x01(\bR\n" +
+	"canApprove\x12\x1f\n" +
+	"\vcan_clarify\x18\x03 \x01(\bR\n" +
+	"canClarify\x12\x19\n" +
+	"\bcan_pick\x18\x04 \x01(\bR\acanPick\"\x87\x01\n" +
+	"\x03Ask\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
+	"\x04kind\x18\x02 \x01(\tR\x04kind\x12\x16\n" +
+	"\x06prompt\x18\x03 \x01(\tR\x06prompt\x12\x16\n" +
+	"\x06detail\x18\x04 \x01(\tR\x06detail\x12,\n" +
+	"\achoices\x18\x05 \x03(\v2\x12.gateway.v1.ChoiceR\achoices\".\n" +
+	"\x06Choice\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x14\n" +
+	"\x05label\x18\x02 \x01(\tR\x05label\">\n" +
+	"\rAnswerRequest\x12\x15\n" +
+	"\x06ask_id\x18\x01 \x01(\tR\x05askId\x12\x16\n" +
+	"\x06answer\x18\x02 \x01(\tR\x06answer\"&\n" +
+	"\x0eAnswerResponse\x12\x14\n" +
+	"\x05found\x18\x01 \x01(\bR\x05found\"\xcd\x01\n" +
 	"\x0eStreamResponse\x12\x12\n" +
 	"\x04kind\x18\x01 \x01(\tR\x04kind\x12\x12\n" +
 	"\x04text\x18\x02 \x01(\tR\x04text\x12\x1d\n" +
 	"\n" +
 	"session_id\x18\x03 \x01(\tR\tsessionId\x12(\n" +
 	"\x04tool\x18\x04 \x01(\v2\x14.gateway.v1.ToolCallR\x04tool\x12'\n" +
-	"\x05media\x18\x05 \x01(\v2\x11.gateway.v1.MediaR\x05media\".\n" +
+	"\x05media\x18\x05 \x01(\v2\x11.gateway.v1.MediaR\x05media\x12!\n" +
+	"\x03ask\x18\x06 \x01(\v2\x0f.gateway.v1.AskR\x03ask\".\n" +
 	"\rCancelRequest\x12\x1d\n" +
 	"\n" +
 	"session_id\x18\x01 \x01(\tR\tsessionId\"H\n" +
 	"\x0eCancelResponse\x12\x1c\n" +
 	"\tcancelled\x18\x01 \x01(\bR\tcancelled\x12\x18\n" +
-	"\adropped\x18\x02 \x01(\x03R\adropped\"F\n" +
-	"\x11SetPersonaRequest\x12\x1d\n" +
-	"\n" +
-	"session_id\x18\x01 \x01(\tR\tsessionId\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\"*\n" +
-	"\x12SetPersonaResponse\x12\x14\n" +
-	"\x05found\x18\x01 \x01(\bR\x05found\"\xa5\x01\n" +
+	"\adropped\x18\x02 \x01(\x03R\adropped\"C\n" +
+	"\x10StopTasksRequest\x12\x16\n" +
+	"\x06origin\x18\x01 \x01(\tR\x06origin\x12\x17\n" +
+	"\atask_id\x18\x02 \x01(\x03R\x06taskId\"C\n" +
+	"\x11StopTasksResponse\x12\x18\n" +
+	"\astopped\x18\x01 \x03(\x03R\astopped\x12\x14\n" +
+	"\x05error\x18\x02 \x01(\tR\x05error\"\xa5\x01\n" +
 	"\x16ApplyTaskActionRequest\x12\x1a\n" +
 	"\bidentity\x18\x01 \x01(\tR\bidentity\x12\x17\n" +
 	"\atask_id\x18\x02 \x01(\x03R\x06taskId\x12\x16\n" +
@@ -3518,7 +3998,7 @@ const file_gateway_v1_chat_proto_rawDesc = "" +
 	"\x17ApplyTaskActionResponse\x12\x17\n" +
 	"\atask_id\x18\x01 \x01(\x03R\x06taskId\x12\x16\n" +
 	"\x06action\x18\x02 \x01(\tR\x06action\x12\x18\n" +
-	"\amessage\x18\x03 \x01(\tR\amessage\"\xae\x02\n" +
+	"\amessage\x18\x03 \x01(\tR\amessage\"\xdd\x02\n" +
 	"\x1eApplyOperatorTaskActionRequest\x12\x17\n" +
 	"\atask_id\x18\x01 \x01(\x03R\x06taskId\x12\x16\n" +
 	"\x06action\x18\x02 \x01(\tR\x06action\x12\x19\n" +
@@ -3531,7 +4011,9 @@ const file_gateway_v1_chat_proto_rawDesc = "" +
 	"\n" +
 	"retry_mode\x18\b \x01(\tR\tretryMode\x12\x1f\n" +
 	"\vresume_from\x18\t \x01(\tR\n" +
-	"resumeFrom\"l\n" +
+	"resumeFrom\x12-\n" +
+	"\x12current_definition\x18\n" +
+	" \x01(\bR\x11currentDefinition\"l\n" +
 	"\x1fApplyOperatorTaskActionResponse\x12\x17\n" +
 	"\atask_id\x18\x01 \x01(\x03R\x06taskId\x12\x16\n" +
 	"\x06action\x18\x02 \x01(\tR\x06action\x12\x18\n" +
@@ -3624,8 +4106,15 @@ const file_gateway_v1_chat_proto_rawDesc = "" +
 	"\x14ReloadChannelRequest\x12\x1d\n" +
 	"\n" +
 	"channel_id\x18\x01 \x01(\tR\tchannelId\"\x17\n" +
-	"\x15ReloadChannelResponse2\xef\x0f\n" +
-	"\vChatService\x12E\n" +
+	"\x15ReloadChannelResponse\"Y\n" +
+	"\x11RecentLogsRequest\x12*\n" +
+	"\x05query\x18\x01 \x01(\v2\x14.logging.v1.LogQueryR\x05query\x12\x18\n" +
+	"\aservice\x18\x02 \x01(\tR\aservice\"I\n" +
+	"\x12RecentLogsResponse\x123\n" +
+	"\bsnapshot\x18\x01 \x01(\v2\x17.logging.v1.LogSnapshotR\bsnapshot2\xca\x11\n" +
+	"\vChatService\x12K\n" +
+	"\n" +
+	"RecentLogs\x12\x1d.gateway.v1.RecentLogsRequest\x1a\x1e.gateway.v1.RecentLogsResponse\x12E\n" +
 	"\bSnapshot\x12\x1b.gateway.v1.SnapshotRequest\x1a\x1c.gateway.v1.SnapshotResponse\x12K\n" +
 	"\n" +
 	"GetSession\x12\x1d.gateway.v1.GetSessionRequest\x1a\x1e.gateway.v1.GetSessionResponse\x12W\n" +
@@ -3633,9 +4122,9 @@ const file_gateway_v1_chat_proto_rawDesc = "" +
 	"\vRecentTurns\x12\x1e.gateway.v1.RecentTurnsRequest\x1a\x1f.gateway.v1.RecentTurnsResponse\x12<\n" +
 	"\x05Route\x12\x18.gateway.v1.RouteRequest\x1a\x19.gateway.v1.RouteResponse\x12A\n" +
 	"\x06Stream\x12\x19.gateway.v1.StreamRequest\x1a\x1a.gateway.v1.StreamResponse0\x01\x12?\n" +
-	"\x06Cancel\x12\x19.gateway.v1.CancelRequest\x1a\x1a.gateway.v1.CancelResponse\x12K\n" +
-	"\n" +
-	"SetPersona\x12\x1d.gateway.v1.SetPersonaRequest\x1a\x1e.gateway.v1.SetPersonaResponse\x12Z\n" +
+	"\x06Answer\x12\x19.gateway.v1.AnswerRequest\x1a\x1a.gateway.v1.AnswerResponse\x12?\n" +
+	"\x06Cancel\x12\x19.gateway.v1.CancelRequest\x1a\x1a.gateway.v1.CancelResponse\x12H\n" +
+	"\tStopTasks\x12\x1c.gateway.v1.StopTasksRequest\x1a\x1d.gateway.v1.StopTasksResponse\x12Z\n" +
 	"\x0fApplyTaskAction\x12\".gateway.v1.ApplyTaskActionRequest\x1a#.gateway.v1.ApplyTaskActionResponse\x12r\n" +
 	"\x17ApplyOperatorTaskAction\x12*.gateway.v1.ApplyOperatorTaskActionRequest\x1a+.gateway.v1.ApplyOperatorTaskActionResponse\x12N\n" +
 	"\vSaveSession\x12\x1e.gateway.v1.SaveSessionRequest\x1a\x1f.gateway.v1.SaveSessionResponse\x12i\n" +
@@ -3652,7 +4141,8 @@ const file_gateway_v1_chat_proto_rawDesc = "" +
 	"\n" +
 	"ListSkills\x12\x1d.gateway.v1.ListSkillsRequest\x1a\x1e.gateway.v1.ListSkillsResponse\x12T\n" +
 	"\rCuratorHealth\x12 .gateway.v1.CuratorHealthRequest\x1a!.gateway.v1.CuratorHealthResponse\x12T\n" +
-	"\rReloadChannel\x12 .gateway.v1.ReloadChannelRequest\x1a!.gateway.v1.ReloadChannelResponseB\xa2\x01\n" +
+	"\rReloadChannel\x12 .gateway.v1.ReloadChannelRequest\x1a!.gateway.v1.ReloadChannelResponse\x12N\n" +
+	"\vCheckSecret\x12\x1e.gateway.v1.CheckSecretRequest\x1a\x1f.gateway.v1.CheckSecretResponseB\xa2\x01\n" +
 	"\x0ecom.gateway.v1B\tChatProtoP\x01Z<github.com/samcharles93/archipelago/sdk/gateway/v1;gatewayv1\xa2\x02\x03GXX\xaa\x02\n" +
 	"Gateway.V1\xca\x02\n" +
 	"Gateway\\V1\xe2\x02\x16Gateway\\V1\\GPBMetadata\xea\x02\vGateway::V1b\x06proto3"
@@ -3669,153 +4159,171 @@ func file_gateway_v1_chat_proto_rawDescGZIP() []byte {
 	return file_gateway_v1_chat_proto_rawDescData
 }
 
-var file_gateway_v1_chat_proto_msgTypes = make([]protoimpl.MessageInfo, 59)
+var file_gateway_v1_chat_proto_msgTypes = make([]protoimpl.MessageInfo, 66)
 var file_gateway_v1_chat_proto_goTypes = []any{
-	(*Session)(nil),                         // 0: gateway.v1.Session
-	(*Message)(nil),                         // 1: gateway.v1.Message
-	(*ToolCall)(nil),                        // 2: gateway.v1.ToolCall
-	(*Media)(nil),                           // 3: gateway.v1.Media
-	(*Turn)(nil),                            // 4: gateway.v1.Turn
-	(*StringList)(nil),                      // 5: gateway.v1.StringList
-	(*SnapshotRequest)(nil),                 // 6: gateway.v1.SnapshotRequest
-	(*SnapshotResponse)(nil),                // 7: gateway.v1.SnapshotResponse
-	(*GetSessionRequest)(nil),               // 8: gateway.v1.GetSessionRequest
-	(*GetSessionResponse)(nil),              // 9: gateway.v1.GetSessionResponse
-	(*RecentMessagesRequest)(nil),           // 10: gateway.v1.RecentMessagesRequest
-	(*RecentMessagesResponse)(nil),          // 11: gateway.v1.RecentMessagesResponse
-	(*RecentTurnsRequest)(nil),              // 12: gateway.v1.RecentTurnsRequest
-	(*RecentTurnsResponse)(nil),             // 13: gateway.v1.RecentTurnsResponse
-	(*RouteRequest)(nil),                    // 14: gateway.v1.RouteRequest
-	(*RouteResponse)(nil),                   // 15: gateway.v1.RouteResponse
-	(*StreamRequest)(nil),                   // 16: gateway.v1.StreamRequest
-	(*StreamResponse)(nil),                  // 17: gateway.v1.StreamResponse
-	(*CancelRequest)(nil),                   // 18: gateway.v1.CancelRequest
-	(*CancelResponse)(nil),                  // 19: gateway.v1.CancelResponse
-	(*SetPersonaRequest)(nil),               // 20: gateway.v1.SetPersonaRequest
-	(*SetPersonaResponse)(nil),              // 21: gateway.v1.SetPersonaResponse
-	(*ApplyTaskActionRequest)(nil),          // 22: gateway.v1.ApplyTaskActionRequest
-	(*ApplyTaskActionResponse)(nil),         // 23: gateway.v1.ApplyTaskActionResponse
-	(*ApplyOperatorTaskActionRequest)(nil),  // 24: gateway.v1.ApplyOperatorTaskActionRequest
-	(*ApplyOperatorTaskActionResponse)(nil), // 25: gateway.v1.ApplyOperatorTaskActionResponse
-	(*SaveSessionResponse)(nil),             // 26: gateway.v1.SaveSessionResponse
-	(*SaveSessionRequest)(nil),              // 27: gateway.v1.SaveSessionRequest
-	(*GetSessionsByChannelRequest)(nil),     // 28: gateway.v1.GetSessionsByChannelRequest
-	(*GetSessionsByChannelResponse)(nil),    // 29: gateway.v1.GetSessionsByChannelResponse
-	(*ListSessionsResponse)(nil),            // 30: gateway.v1.ListSessionsResponse
-	(*DeleteSessionResponse)(nil),           // 31: gateway.v1.DeleteSessionResponse
-	(*TouchSessionResponse)(nil),            // 32: gateway.v1.TouchSessionResponse
-	(*SaveMessageResponse)(nil),             // 33: gateway.v1.SaveMessageResponse
-	(*SaveMessagesResponse)(nil),            // 34: gateway.v1.SaveMessagesResponse
-	(*ReplaceMessagesResponse)(nil),         // 35: gateway.v1.ReplaceMessagesResponse
-	(*DeleteSessionRequest)(nil),            // 36: gateway.v1.DeleteSessionRequest
-	(*TouchSessionRequest)(nil),             // 37: gateway.v1.TouchSessionRequest
-	(*ListSessionsRequest)(nil),             // 38: gateway.v1.ListSessionsRequest
-	(*SaveMessageRequest)(nil),              // 39: gateway.v1.SaveMessageRequest
-	(*DeleteRecentMessagesRequest)(nil),     // 40: gateway.v1.DeleteRecentMessagesRequest
-	(*DeleteRecentMessagesResponse)(nil),    // 41: gateway.v1.DeleteRecentMessagesResponse
-	(*MessageCountRequest)(nil),             // 42: gateway.v1.MessageCountRequest
-	(*MessageCountResponse)(nil),            // 43: gateway.v1.MessageCountResponse
-	(*SaveMessagesRequest)(nil),             // 44: gateway.v1.SaveMessagesRequest
-	(*ReplaceMessagesRequest)(nil),          // 45: gateway.v1.ReplaceMessagesRequest
-	(*SearchMessagesRequest)(nil),           // 46: gateway.v1.SearchMessagesRequest
-	(*SearchMessagesResponse)(nil),          // 47: gateway.v1.SearchMessagesResponse
-	(*ListSkillsRequest)(nil),               // 48: gateway.v1.ListSkillsRequest
-	(*ListSkillsResponse)(nil),              // 49: gateway.v1.ListSkillsResponse
-	(*Skill)(nil),                           // 50: gateway.v1.Skill
-	(*CuratorHealthRequest)(nil),            // 51: gateway.v1.CuratorHealthRequest
-	(*CuratorHealthResponse)(nil),           // 52: gateway.v1.CuratorHealthResponse
-	(*Curator)(nil),                         // 53: gateway.v1.Curator
-	(*CuratorAction)(nil),                   // 54: gateway.v1.CuratorAction
-	(*ReloadChannelRequest)(nil),            // 55: gateway.v1.ReloadChannelRequest
-	(*ReloadChannelResponse)(nil),           // 56: gateway.v1.ReloadChannelResponse
-	nil,                                     // 57: gateway.v1.SnapshotResponse.ModelsByProviderEntry
-	nil,                                     // 58: gateway.v1.SnapshotResponse.ActivePersonasEntry
-	(*timestamppb.Timestamp)(nil),           // 59: google.protobuf.Timestamp
+	(*CheckSecretRequest)(nil),              // 0: gateway.v1.CheckSecretRequest
+	(*CheckSecretResponse)(nil),             // 1: gateway.v1.CheckSecretResponse
+	(*Session)(nil),                         // 2: gateway.v1.Session
+	(*Message)(nil),                         // 3: gateway.v1.Message
+	(*ToolCall)(nil),                        // 4: gateway.v1.ToolCall
+	(*Media)(nil),                           // 5: gateway.v1.Media
+	(*Turn)(nil),                            // 6: gateway.v1.Turn
+	(*StringList)(nil),                      // 7: gateway.v1.StringList
+	(*SnapshotRequest)(nil),                 // 8: gateway.v1.SnapshotRequest
+	(*SnapshotResponse)(nil),                // 9: gateway.v1.SnapshotResponse
+	(*GetSessionRequest)(nil),               // 10: gateway.v1.GetSessionRequest
+	(*GetSessionResponse)(nil),              // 11: gateway.v1.GetSessionResponse
+	(*RecentMessagesRequest)(nil),           // 12: gateway.v1.RecentMessagesRequest
+	(*RecentMessagesResponse)(nil),          // 13: gateway.v1.RecentMessagesResponse
+	(*RecentTurnsRequest)(nil),              // 14: gateway.v1.RecentTurnsRequest
+	(*RecentTurnsResponse)(nil),             // 15: gateway.v1.RecentTurnsResponse
+	(*RouteRequest)(nil),                    // 16: gateway.v1.RouteRequest
+	(*RouteResponse)(nil),                   // 17: gateway.v1.RouteResponse
+	(*StreamRequest)(nil),                   // 18: gateway.v1.StreamRequest
+	(*Ask)(nil),                             // 19: gateway.v1.Ask
+	(*Choice)(nil),                          // 20: gateway.v1.Choice
+	(*AnswerRequest)(nil),                   // 21: gateway.v1.AnswerRequest
+	(*AnswerResponse)(nil),                  // 22: gateway.v1.AnswerResponse
+	(*StreamResponse)(nil),                  // 23: gateway.v1.StreamResponse
+	(*CancelRequest)(nil),                   // 24: gateway.v1.CancelRequest
+	(*CancelResponse)(nil),                  // 25: gateway.v1.CancelResponse
+	(*StopTasksRequest)(nil),                // 26: gateway.v1.StopTasksRequest
+	(*StopTasksResponse)(nil),               // 27: gateway.v1.StopTasksResponse
+	(*ApplyTaskActionRequest)(nil),          // 28: gateway.v1.ApplyTaskActionRequest
+	(*ApplyTaskActionResponse)(nil),         // 29: gateway.v1.ApplyTaskActionResponse
+	(*ApplyOperatorTaskActionRequest)(nil),  // 30: gateway.v1.ApplyOperatorTaskActionRequest
+	(*ApplyOperatorTaskActionResponse)(nil), // 31: gateway.v1.ApplyOperatorTaskActionResponse
+	(*SaveSessionResponse)(nil),             // 32: gateway.v1.SaveSessionResponse
+	(*SaveSessionRequest)(nil),              // 33: gateway.v1.SaveSessionRequest
+	(*GetSessionsByChannelRequest)(nil),     // 34: gateway.v1.GetSessionsByChannelRequest
+	(*GetSessionsByChannelResponse)(nil),    // 35: gateway.v1.GetSessionsByChannelResponse
+	(*ListSessionsResponse)(nil),            // 36: gateway.v1.ListSessionsResponse
+	(*DeleteSessionResponse)(nil),           // 37: gateway.v1.DeleteSessionResponse
+	(*TouchSessionResponse)(nil),            // 38: gateway.v1.TouchSessionResponse
+	(*SaveMessageResponse)(nil),             // 39: gateway.v1.SaveMessageResponse
+	(*SaveMessagesResponse)(nil),            // 40: gateway.v1.SaveMessagesResponse
+	(*ReplaceMessagesResponse)(nil),         // 41: gateway.v1.ReplaceMessagesResponse
+	(*DeleteSessionRequest)(nil),            // 42: gateway.v1.DeleteSessionRequest
+	(*TouchSessionRequest)(nil),             // 43: gateway.v1.TouchSessionRequest
+	(*ListSessionsRequest)(nil),             // 44: gateway.v1.ListSessionsRequest
+	(*SaveMessageRequest)(nil),              // 45: gateway.v1.SaveMessageRequest
+	(*DeleteRecentMessagesRequest)(nil),     // 46: gateway.v1.DeleteRecentMessagesRequest
+	(*DeleteRecentMessagesResponse)(nil),    // 47: gateway.v1.DeleteRecentMessagesResponse
+	(*MessageCountRequest)(nil),             // 48: gateway.v1.MessageCountRequest
+	(*MessageCountResponse)(nil),            // 49: gateway.v1.MessageCountResponse
+	(*SaveMessagesRequest)(nil),             // 50: gateway.v1.SaveMessagesRequest
+	(*ReplaceMessagesRequest)(nil),          // 51: gateway.v1.ReplaceMessagesRequest
+	(*SearchMessagesRequest)(nil),           // 52: gateway.v1.SearchMessagesRequest
+	(*SearchMessagesResponse)(nil),          // 53: gateway.v1.SearchMessagesResponse
+	(*ListSkillsRequest)(nil),               // 54: gateway.v1.ListSkillsRequest
+	(*ListSkillsResponse)(nil),              // 55: gateway.v1.ListSkillsResponse
+	(*Skill)(nil),                           // 56: gateway.v1.Skill
+	(*CuratorHealthRequest)(nil),            // 57: gateway.v1.CuratorHealthRequest
+	(*CuratorHealthResponse)(nil),           // 58: gateway.v1.CuratorHealthResponse
+	(*Curator)(nil),                         // 59: gateway.v1.Curator
+	(*CuratorAction)(nil),                   // 60: gateway.v1.CuratorAction
+	(*ReloadChannelRequest)(nil),            // 61: gateway.v1.ReloadChannelRequest
+	(*ReloadChannelResponse)(nil),           // 62: gateway.v1.ReloadChannelResponse
+	(*RecentLogsRequest)(nil),               // 63: gateway.v1.RecentLogsRequest
+	(*RecentLogsResponse)(nil),              // 64: gateway.v1.RecentLogsResponse
+	nil,                                     // 65: gateway.v1.SnapshotResponse.ModelsByProviderEntry
+	(*timestamppb.Timestamp)(nil),           // 66: google.protobuf.Timestamp
+	(*v1.LogQuery)(nil),                     // 67: logging.v1.LogQuery
+	(*v1.LogSnapshot)(nil),                  // 68: logging.v1.LogSnapshot
 }
 var file_gateway_v1_chat_proto_depIdxs = []int32{
-	59, // 0: gateway.v1.Session.created_at:type_name -> google.protobuf.Timestamp
-	59, // 1: gateway.v1.Session.last_active_at:type_name -> google.protobuf.Timestamp
-	59, // 2: gateway.v1.Message.at:type_name -> google.protobuf.Timestamp
-	3,  // 3: gateway.v1.Message.media:type_name -> gateway.v1.Media
-	2,  // 4: gateway.v1.Turn.tool_calls:type_name -> gateway.v1.ToolCall
-	59, // 5: gateway.v1.Turn.created_at:type_name -> google.protobuf.Timestamp
-	59, // 6: gateway.v1.Turn.updated_at:type_name -> google.protobuf.Timestamp
-	0,  // 7: gateway.v1.SnapshotResponse.sessions:type_name -> gateway.v1.Session
-	57, // 8: gateway.v1.SnapshotResponse.models_by_provider:type_name -> gateway.v1.SnapshotResponse.ModelsByProviderEntry
-	58, // 9: gateway.v1.SnapshotResponse.active_personas:type_name -> gateway.v1.SnapshotResponse.ActivePersonasEntry
-	0,  // 10: gateway.v1.GetSessionResponse.session:type_name -> gateway.v1.Session
-	1,  // 11: gateway.v1.RecentMessagesResponse.messages:type_name -> gateway.v1.Message
-	4,  // 12: gateway.v1.RecentTurnsResponse.turns:type_name -> gateway.v1.Turn
-	1,  // 13: gateway.v1.RouteRequest.message:type_name -> gateway.v1.Message
-	1,  // 14: gateway.v1.StreamRequest.message:type_name -> gateway.v1.Message
-	2,  // 15: gateway.v1.StreamResponse.tool:type_name -> gateway.v1.ToolCall
-	3,  // 16: gateway.v1.StreamResponse.media:type_name -> gateway.v1.Media
-	0,  // 17: gateway.v1.SaveSessionRequest.session:type_name -> gateway.v1.Session
-	0,  // 18: gateway.v1.GetSessionsByChannelResponse.sessions:type_name -> gateway.v1.Session
-	0,  // 19: gateway.v1.ListSessionsResponse.sessions:type_name -> gateway.v1.Session
-	1,  // 20: gateway.v1.SaveMessageRequest.message:type_name -> gateway.v1.Message
-	1,  // 21: gateway.v1.SaveMessagesRequest.messages:type_name -> gateway.v1.Message
-	1,  // 22: gateway.v1.ReplaceMessagesRequest.messages:type_name -> gateway.v1.Message
-	1,  // 23: gateway.v1.SearchMessagesResponse.messages:type_name -> gateway.v1.Message
-	50, // 24: gateway.v1.ListSkillsResponse.skills:type_name -> gateway.v1.Skill
-	53, // 25: gateway.v1.CuratorHealthResponse.curators:type_name -> gateway.v1.Curator
-	59, // 26: gateway.v1.Curator.last_run_at:type_name -> google.protobuf.Timestamp
-	54, // 27: gateway.v1.Curator.recent_actions:type_name -> gateway.v1.CuratorAction
-	59, // 28: gateway.v1.CuratorAction.at:type_name -> google.protobuf.Timestamp
-	5,  // 29: gateway.v1.SnapshotResponse.ModelsByProviderEntry.value:type_name -> gateway.v1.StringList
-	6,  // 30: gateway.v1.ChatService.Snapshot:input_type -> gateway.v1.SnapshotRequest
-	8,  // 31: gateway.v1.ChatService.GetSession:input_type -> gateway.v1.GetSessionRequest
-	10, // 32: gateway.v1.ChatService.RecentMessages:input_type -> gateway.v1.RecentMessagesRequest
-	12, // 33: gateway.v1.ChatService.RecentTurns:input_type -> gateway.v1.RecentTurnsRequest
-	14, // 34: gateway.v1.ChatService.Route:input_type -> gateway.v1.RouteRequest
-	16, // 35: gateway.v1.ChatService.Stream:input_type -> gateway.v1.StreamRequest
-	18, // 36: gateway.v1.ChatService.Cancel:input_type -> gateway.v1.CancelRequest
-	20, // 37: gateway.v1.ChatService.SetPersona:input_type -> gateway.v1.SetPersonaRequest
-	22, // 38: gateway.v1.ChatService.ApplyTaskAction:input_type -> gateway.v1.ApplyTaskActionRequest
-	24, // 39: gateway.v1.ChatService.ApplyOperatorTaskAction:input_type -> gateway.v1.ApplyOperatorTaskActionRequest
-	27, // 40: gateway.v1.ChatService.SaveSession:input_type -> gateway.v1.SaveSessionRequest
-	28, // 41: gateway.v1.ChatService.GetSessionsByChannel:input_type -> gateway.v1.GetSessionsByChannelRequest
-	36, // 42: gateway.v1.ChatService.DeleteSession:input_type -> gateway.v1.DeleteSessionRequest
-	37, // 43: gateway.v1.ChatService.TouchSession:input_type -> gateway.v1.TouchSessionRequest
-	38, // 44: gateway.v1.ChatService.ListSessions:input_type -> gateway.v1.ListSessionsRequest
-	39, // 45: gateway.v1.ChatService.SaveMessage:input_type -> gateway.v1.SaveMessageRequest
-	40, // 46: gateway.v1.ChatService.DeleteRecentMessages:input_type -> gateway.v1.DeleteRecentMessagesRequest
-	42, // 47: gateway.v1.ChatService.MessageCount:input_type -> gateway.v1.MessageCountRequest
-	44, // 48: gateway.v1.ChatService.SaveMessages:input_type -> gateway.v1.SaveMessagesRequest
-	45, // 49: gateway.v1.ChatService.ReplaceMessages:input_type -> gateway.v1.ReplaceMessagesRequest
-	46, // 50: gateway.v1.ChatService.SearchMessages:input_type -> gateway.v1.SearchMessagesRequest
-	48, // 51: gateway.v1.ChatService.ListSkills:input_type -> gateway.v1.ListSkillsRequest
-	51, // 52: gateway.v1.ChatService.CuratorHealth:input_type -> gateway.v1.CuratorHealthRequest
-	55, // 53: gateway.v1.ChatService.ReloadChannel:input_type -> gateway.v1.ReloadChannelRequest
-	7,  // 54: gateway.v1.ChatService.Snapshot:output_type -> gateway.v1.SnapshotResponse
-	9,  // 55: gateway.v1.ChatService.GetSession:output_type -> gateway.v1.GetSessionResponse
-	11, // 56: gateway.v1.ChatService.RecentMessages:output_type -> gateway.v1.RecentMessagesResponse
-	13, // 57: gateway.v1.ChatService.RecentTurns:output_type -> gateway.v1.RecentTurnsResponse
-	15, // 58: gateway.v1.ChatService.Route:output_type -> gateway.v1.RouteResponse
-	17, // 59: gateway.v1.ChatService.Stream:output_type -> gateway.v1.StreamResponse
-	19, // 60: gateway.v1.ChatService.Cancel:output_type -> gateway.v1.CancelResponse
-	21, // 61: gateway.v1.ChatService.SetPersona:output_type -> gateway.v1.SetPersonaResponse
-	23, // 62: gateway.v1.ChatService.ApplyTaskAction:output_type -> gateway.v1.ApplyTaskActionResponse
-	25, // 63: gateway.v1.ChatService.ApplyOperatorTaskAction:output_type -> gateway.v1.ApplyOperatorTaskActionResponse
-	26, // 64: gateway.v1.ChatService.SaveSession:output_type -> gateway.v1.SaveSessionResponse
-	29, // 65: gateway.v1.ChatService.GetSessionsByChannel:output_type -> gateway.v1.GetSessionsByChannelResponse
-	31, // 66: gateway.v1.ChatService.DeleteSession:output_type -> gateway.v1.DeleteSessionResponse
-	32, // 67: gateway.v1.ChatService.TouchSession:output_type -> gateway.v1.TouchSessionResponse
-	30, // 68: gateway.v1.ChatService.ListSessions:output_type -> gateway.v1.ListSessionsResponse
-	33, // 69: gateway.v1.ChatService.SaveMessage:output_type -> gateway.v1.SaveMessageResponse
-	41, // 70: gateway.v1.ChatService.DeleteRecentMessages:output_type -> gateway.v1.DeleteRecentMessagesResponse
-	43, // 71: gateway.v1.ChatService.MessageCount:output_type -> gateway.v1.MessageCountResponse
-	34, // 72: gateway.v1.ChatService.SaveMessages:output_type -> gateway.v1.SaveMessagesResponse
-	35, // 73: gateway.v1.ChatService.ReplaceMessages:output_type -> gateway.v1.ReplaceMessagesResponse
-	47, // 74: gateway.v1.ChatService.SearchMessages:output_type -> gateway.v1.SearchMessagesResponse
-	49, // 75: gateway.v1.ChatService.ListSkills:output_type -> gateway.v1.ListSkillsResponse
-	52, // 76: gateway.v1.ChatService.CuratorHealth:output_type -> gateway.v1.CuratorHealthResponse
-	56, // 77: gateway.v1.ChatService.ReloadChannel:output_type -> gateway.v1.ReloadChannelResponse
-	54, // [54:78] is the sub-list for method output_type
-	30, // [30:54] is the sub-list for method input_type
-	30, // [30:30] is the sub-list for extension type_name
-	30, // [30:30] is the sub-list for extension extendee
-	0,  // [0:30] is the sub-list for field type_name
+	66, // 0: gateway.v1.Session.created_at:type_name -> google.protobuf.Timestamp
+	66, // 1: gateway.v1.Session.last_active_at:type_name -> google.protobuf.Timestamp
+	66, // 2: gateway.v1.Message.at:type_name -> google.protobuf.Timestamp
+	5,  // 3: gateway.v1.Message.media:type_name -> gateway.v1.Media
+	4,  // 4: gateway.v1.Turn.tool_calls:type_name -> gateway.v1.ToolCall
+	66, // 5: gateway.v1.Turn.created_at:type_name -> google.protobuf.Timestamp
+	66, // 6: gateway.v1.Turn.updated_at:type_name -> google.protobuf.Timestamp
+	2,  // 7: gateway.v1.SnapshotResponse.sessions:type_name -> gateway.v1.Session
+	65, // 8: gateway.v1.SnapshotResponse.models_by_provider:type_name -> gateway.v1.SnapshotResponse.ModelsByProviderEntry
+	2,  // 9: gateway.v1.GetSessionResponse.session:type_name -> gateway.v1.Session
+	3,  // 10: gateway.v1.RecentMessagesResponse.messages:type_name -> gateway.v1.Message
+	6,  // 11: gateway.v1.RecentTurnsResponse.turns:type_name -> gateway.v1.Turn
+	3,  // 12: gateway.v1.RouteRequest.message:type_name -> gateway.v1.Message
+	3,  // 13: gateway.v1.StreamRequest.message:type_name -> gateway.v1.Message
+	20, // 14: gateway.v1.Ask.choices:type_name -> gateway.v1.Choice
+	4,  // 15: gateway.v1.StreamResponse.tool:type_name -> gateway.v1.ToolCall
+	5,  // 16: gateway.v1.StreamResponse.media:type_name -> gateway.v1.Media
+	19, // 17: gateway.v1.StreamResponse.ask:type_name -> gateway.v1.Ask
+	2,  // 18: gateway.v1.SaveSessionRequest.session:type_name -> gateway.v1.Session
+	2,  // 19: gateway.v1.GetSessionsByChannelResponse.sessions:type_name -> gateway.v1.Session
+	2,  // 20: gateway.v1.ListSessionsResponse.sessions:type_name -> gateway.v1.Session
+	3,  // 21: gateway.v1.SaveMessageRequest.message:type_name -> gateway.v1.Message
+	3,  // 22: gateway.v1.SaveMessagesRequest.messages:type_name -> gateway.v1.Message
+	3,  // 23: gateway.v1.ReplaceMessagesRequest.messages:type_name -> gateway.v1.Message
+	3,  // 24: gateway.v1.SearchMessagesResponse.messages:type_name -> gateway.v1.Message
+	56, // 25: gateway.v1.ListSkillsResponse.skills:type_name -> gateway.v1.Skill
+	59, // 26: gateway.v1.CuratorHealthResponse.curators:type_name -> gateway.v1.Curator
+	66, // 27: gateway.v1.Curator.last_run_at:type_name -> google.protobuf.Timestamp
+	60, // 28: gateway.v1.Curator.recent_actions:type_name -> gateway.v1.CuratorAction
+	66, // 29: gateway.v1.CuratorAction.at:type_name -> google.protobuf.Timestamp
+	67, // 30: gateway.v1.RecentLogsRequest.query:type_name -> logging.v1.LogQuery
+	68, // 31: gateway.v1.RecentLogsResponse.snapshot:type_name -> logging.v1.LogSnapshot
+	7,  // 32: gateway.v1.SnapshotResponse.ModelsByProviderEntry.value:type_name -> gateway.v1.StringList
+	63, // 33: gateway.v1.ChatService.RecentLogs:input_type -> gateway.v1.RecentLogsRequest
+	8,  // 34: gateway.v1.ChatService.Snapshot:input_type -> gateway.v1.SnapshotRequest
+	10, // 35: gateway.v1.ChatService.GetSession:input_type -> gateway.v1.GetSessionRequest
+	12, // 36: gateway.v1.ChatService.RecentMessages:input_type -> gateway.v1.RecentMessagesRequest
+	14, // 37: gateway.v1.ChatService.RecentTurns:input_type -> gateway.v1.RecentTurnsRequest
+	16, // 38: gateway.v1.ChatService.Route:input_type -> gateway.v1.RouteRequest
+	18, // 39: gateway.v1.ChatService.Stream:input_type -> gateway.v1.StreamRequest
+	21, // 40: gateway.v1.ChatService.Answer:input_type -> gateway.v1.AnswerRequest
+	24, // 41: gateway.v1.ChatService.Cancel:input_type -> gateway.v1.CancelRequest
+	26, // 42: gateway.v1.ChatService.StopTasks:input_type -> gateway.v1.StopTasksRequest
+	28, // 43: gateway.v1.ChatService.ApplyTaskAction:input_type -> gateway.v1.ApplyTaskActionRequest
+	30, // 44: gateway.v1.ChatService.ApplyOperatorTaskAction:input_type -> gateway.v1.ApplyOperatorTaskActionRequest
+	33, // 45: gateway.v1.ChatService.SaveSession:input_type -> gateway.v1.SaveSessionRequest
+	34, // 46: gateway.v1.ChatService.GetSessionsByChannel:input_type -> gateway.v1.GetSessionsByChannelRequest
+	42, // 47: gateway.v1.ChatService.DeleteSession:input_type -> gateway.v1.DeleteSessionRequest
+	43, // 48: gateway.v1.ChatService.TouchSession:input_type -> gateway.v1.TouchSessionRequest
+	44, // 49: gateway.v1.ChatService.ListSessions:input_type -> gateway.v1.ListSessionsRequest
+	45, // 50: gateway.v1.ChatService.SaveMessage:input_type -> gateway.v1.SaveMessageRequest
+	46, // 51: gateway.v1.ChatService.DeleteRecentMessages:input_type -> gateway.v1.DeleteRecentMessagesRequest
+	48, // 52: gateway.v1.ChatService.MessageCount:input_type -> gateway.v1.MessageCountRequest
+	50, // 53: gateway.v1.ChatService.SaveMessages:input_type -> gateway.v1.SaveMessagesRequest
+	51, // 54: gateway.v1.ChatService.ReplaceMessages:input_type -> gateway.v1.ReplaceMessagesRequest
+	52, // 55: gateway.v1.ChatService.SearchMessages:input_type -> gateway.v1.SearchMessagesRequest
+	54, // 56: gateway.v1.ChatService.ListSkills:input_type -> gateway.v1.ListSkillsRequest
+	57, // 57: gateway.v1.ChatService.CuratorHealth:input_type -> gateway.v1.CuratorHealthRequest
+	61, // 58: gateway.v1.ChatService.ReloadChannel:input_type -> gateway.v1.ReloadChannelRequest
+	0,  // 59: gateway.v1.ChatService.CheckSecret:input_type -> gateway.v1.CheckSecretRequest
+	64, // 60: gateway.v1.ChatService.RecentLogs:output_type -> gateway.v1.RecentLogsResponse
+	9,  // 61: gateway.v1.ChatService.Snapshot:output_type -> gateway.v1.SnapshotResponse
+	11, // 62: gateway.v1.ChatService.GetSession:output_type -> gateway.v1.GetSessionResponse
+	13, // 63: gateway.v1.ChatService.RecentMessages:output_type -> gateway.v1.RecentMessagesResponse
+	15, // 64: gateway.v1.ChatService.RecentTurns:output_type -> gateway.v1.RecentTurnsResponse
+	17, // 65: gateway.v1.ChatService.Route:output_type -> gateway.v1.RouteResponse
+	23, // 66: gateway.v1.ChatService.Stream:output_type -> gateway.v1.StreamResponse
+	22, // 67: gateway.v1.ChatService.Answer:output_type -> gateway.v1.AnswerResponse
+	25, // 68: gateway.v1.ChatService.Cancel:output_type -> gateway.v1.CancelResponse
+	27, // 69: gateway.v1.ChatService.StopTasks:output_type -> gateway.v1.StopTasksResponse
+	29, // 70: gateway.v1.ChatService.ApplyTaskAction:output_type -> gateway.v1.ApplyTaskActionResponse
+	31, // 71: gateway.v1.ChatService.ApplyOperatorTaskAction:output_type -> gateway.v1.ApplyOperatorTaskActionResponse
+	32, // 72: gateway.v1.ChatService.SaveSession:output_type -> gateway.v1.SaveSessionResponse
+	35, // 73: gateway.v1.ChatService.GetSessionsByChannel:output_type -> gateway.v1.GetSessionsByChannelResponse
+	37, // 74: gateway.v1.ChatService.DeleteSession:output_type -> gateway.v1.DeleteSessionResponse
+	38, // 75: gateway.v1.ChatService.TouchSession:output_type -> gateway.v1.TouchSessionResponse
+	36, // 76: gateway.v1.ChatService.ListSessions:output_type -> gateway.v1.ListSessionsResponse
+	39, // 77: gateway.v1.ChatService.SaveMessage:output_type -> gateway.v1.SaveMessageResponse
+	47, // 78: gateway.v1.ChatService.DeleteRecentMessages:output_type -> gateway.v1.DeleteRecentMessagesResponse
+	49, // 79: gateway.v1.ChatService.MessageCount:output_type -> gateway.v1.MessageCountResponse
+	40, // 80: gateway.v1.ChatService.SaveMessages:output_type -> gateway.v1.SaveMessagesResponse
+	41, // 81: gateway.v1.ChatService.ReplaceMessages:output_type -> gateway.v1.ReplaceMessagesResponse
+	53, // 82: gateway.v1.ChatService.SearchMessages:output_type -> gateway.v1.SearchMessagesResponse
+	55, // 83: gateway.v1.ChatService.ListSkills:output_type -> gateway.v1.ListSkillsResponse
+	58, // 84: gateway.v1.ChatService.CuratorHealth:output_type -> gateway.v1.CuratorHealthResponse
+	62, // 85: gateway.v1.ChatService.ReloadChannel:output_type -> gateway.v1.ReloadChannelResponse
+	1,  // 86: gateway.v1.ChatService.CheckSecret:output_type -> gateway.v1.CheckSecretResponse
+	60, // [60:87] is the sub-list for method output_type
+	33, // [33:60] is the sub-list for method input_type
+	33, // [33:33] is the sub-list for extension type_name
+	33, // [33:33] is the sub-list for extension extendee
+	0,  // [0:33] is the sub-list for field type_name
 }
 
 func init() { file_gateway_v1_chat_proto_init() }
@@ -3823,15 +4331,15 @@ func file_gateway_v1_chat_proto_init() {
 	if File_gateway_v1_chat_proto != nil {
 		return
 	}
-	file_gateway_v1_chat_proto_msgTypes[3].OneofWrappers = []any{}
-	file_gateway_v1_chat_proto_msgTypes[53].OneofWrappers = []any{}
+	file_gateway_v1_chat_proto_msgTypes[5].OneofWrappers = []any{}
+	file_gateway_v1_chat_proto_msgTypes[59].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_gateway_v1_chat_proto_rawDesc), len(file_gateway_v1_chat_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   59,
+			NumMessages:   66,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

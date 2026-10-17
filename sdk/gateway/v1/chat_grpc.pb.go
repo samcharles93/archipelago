@@ -19,14 +19,16 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
+	ChatService_RecentLogs_FullMethodName              = "/gateway.v1.ChatService/RecentLogs"
 	ChatService_Snapshot_FullMethodName                = "/gateway.v1.ChatService/Snapshot"
 	ChatService_GetSession_FullMethodName              = "/gateway.v1.ChatService/GetSession"
 	ChatService_RecentMessages_FullMethodName          = "/gateway.v1.ChatService/RecentMessages"
 	ChatService_RecentTurns_FullMethodName             = "/gateway.v1.ChatService/RecentTurns"
 	ChatService_Route_FullMethodName                   = "/gateway.v1.ChatService/Route"
 	ChatService_Stream_FullMethodName                  = "/gateway.v1.ChatService/Stream"
+	ChatService_Answer_FullMethodName                  = "/gateway.v1.ChatService/Answer"
 	ChatService_Cancel_FullMethodName                  = "/gateway.v1.ChatService/Cancel"
-	ChatService_SetPersona_FullMethodName              = "/gateway.v1.ChatService/SetPersona"
+	ChatService_StopTasks_FullMethodName               = "/gateway.v1.ChatService/StopTasks"
 	ChatService_ApplyTaskAction_FullMethodName         = "/gateway.v1.ChatService/ApplyTaskAction"
 	ChatService_ApplyOperatorTaskAction_FullMethodName = "/gateway.v1.ChatService/ApplyOperatorTaskAction"
 	ChatService_SaveSession_FullMethodName             = "/gateway.v1.ChatService/SaveSession"
@@ -43,20 +45,23 @@ const (
 	ChatService_ListSkills_FullMethodName              = "/gateway.v1.ChatService/ListSkills"
 	ChatService_CuratorHealth_FullMethodName           = "/gateway.v1.ChatService/CuratorHealth"
 	ChatService_ReloadChannel_FullMethodName           = "/gateway.v1.ChatService/ReloadChannel"
+	ChatService_CheckSecret_FullMethodName             = "/gateway.v1.ChatService/CheckSecret"
 )
 
 // ChatServiceClient is the client API for ChatService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ChatServiceClient interface {
+	RecentLogs(ctx context.Context, in *RecentLogsRequest, opts ...grpc.CallOption) (*RecentLogsResponse, error)
 	Snapshot(ctx context.Context, in *SnapshotRequest, opts ...grpc.CallOption) (*SnapshotResponse, error)
 	GetSession(ctx context.Context, in *GetSessionRequest, opts ...grpc.CallOption) (*GetSessionResponse, error)
 	RecentMessages(ctx context.Context, in *RecentMessagesRequest, opts ...grpc.CallOption) (*RecentMessagesResponse, error)
 	RecentTurns(ctx context.Context, in *RecentTurnsRequest, opts ...grpc.CallOption) (*RecentTurnsResponse, error)
 	Route(ctx context.Context, in *RouteRequest, opts ...grpc.CallOption) (*RouteResponse, error)
 	Stream(ctx context.Context, in *StreamRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[StreamResponse], error)
+	Answer(ctx context.Context, in *AnswerRequest, opts ...grpc.CallOption) (*AnswerResponse, error)
 	Cancel(ctx context.Context, in *CancelRequest, opts ...grpc.CallOption) (*CancelResponse, error)
-	SetPersona(ctx context.Context, in *SetPersonaRequest, opts ...grpc.CallOption) (*SetPersonaResponse, error)
+	StopTasks(ctx context.Context, in *StopTasksRequest, opts ...grpc.CallOption) (*StopTasksResponse, error)
 	ApplyTaskAction(ctx context.Context, in *ApplyTaskActionRequest, opts ...grpc.CallOption) (*ApplyTaskActionResponse, error)
 	ApplyOperatorTaskAction(ctx context.Context, in *ApplyOperatorTaskActionRequest, opts ...grpc.CallOption) (*ApplyOperatorTaskActionResponse, error)
 	SaveSession(ctx context.Context, in *SaveSessionRequest, opts ...grpc.CallOption) (*SaveSessionResponse, error)
@@ -73,6 +78,8 @@ type ChatServiceClient interface {
 	ListSkills(ctx context.Context, in *ListSkillsRequest, opts ...grpc.CallOption) (*ListSkillsResponse, error)
 	CuratorHealth(ctx context.Context, in *CuratorHealthRequest, opts ...grpc.CallOption) (*CuratorHealthResponse, error)
 	ReloadChannel(ctx context.Context, in *ReloadChannelRequest, opts ...grpc.CallOption) (*ReloadChannelResponse, error)
+	// CheckSecret reports resolution in this process without returning a value.
+	CheckSecret(ctx context.Context, in *CheckSecretRequest, opts ...grpc.CallOption) (*CheckSecretResponse, error)
 }
 
 type chatServiceClient struct {
@@ -81,6 +88,16 @@ type chatServiceClient struct {
 
 func NewChatServiceClient(cc grpc.ClientConnInterface) ChatServiceClient {
 	return &chatServiceClient{cc}
+}
+
+func (c *chatServiceClient) RecentLogs(ctx context.Context, in *RecentLogsRequest, opts ...grpc.CallOption) (*RecentLogsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RecentLogsResponse)
+	err := c.cc.Invoke(ctx, ChatService_RecentLogs_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *chatServiceClient) Snapshot(ctx context.Context, in *SnapshotRequest, opts ...grpc.CallOption) (*SnapshotResponse, error) {
@@ -152,6 +169,16 @@ func (c *chatServiceClient) Stream(ctx context.Context, in *StreamRequest, opts 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type ChatService_StreamClient = grpc.ServerStreamingClient[StreamResponse]
 
+func (c *chatServiceClient) Answer(ctx context.Context, in *AnswerRequest, opts ...grpc.CallOption) (*AnswerResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AnswerResponse)
+	err := c.cc.Invoke(ctx, ChatService_Answer_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *chatServiceClient) Cancel(ctx context.Context, in *CancelRequest, opts ...grpc.CallOption) (*CancelResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(CancelResponse)
@@ -162,10 +189,10 @@ func (c *chatServiceClient) Cancel(ctx context.Context, in *CancelRequest, opts 
 	return out, nil
 }
 
-func (c *chatServiceClient) SetPersona(ctx context.Context, in *SetPersonaRequest, opts ...grpc.CallOption) (*SetPersonaResponse, error) {
+func (c *chatServiceClient) StopTasks(ctx context.Context, in *StopTasksRequest, opts ...grpc.CallOption) (*StopTasksResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(SetPersonaResponse)
-	err := c.cc.Invoke(ctx, ChatService_SetPersona_FullMethodName, in, out, cOpts...)
+	out := new(StopTasksResponse)
+	err := c.cc.Invoke(ctx, ChatService_StopTasks_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -332,18 +359,30 @@ func (c *chatServiceClient) ReloadChannel(ctx context.Context, in *ReloadChannel
 	return out, nil
 }
 
+func (c *chatServiceClient) CheckSecret(ctx context.Context, in *CheckSecretRequest, opts ...grpc.CallOption) (*CheckSecretResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CheckSecretResponse)
+	err := c.cc.Invoke(ctx, ChatService_CheckSecret_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ChatServiceServer is the server API for ChatService service.
 // All implementations must embed UnimplementedChatServiceServer
 // for forward compatibility.
 type ChatServiceServer interface {
+	RecentLogs(context.Context, *RecentLogsRequest) (*RecentLogsResponse, error)
 	Snapshot(context.Context, *SnapshotRequest) (*SnapshotResponse, error)
 	GetSession(context.Context, *GetSessionRequest) (*GetSessionResponse, error)
 	RecentMessages(context.Context, *RecentMessagesRequest) (*RecentMessagesResponse, error)
 	RecentTurns(context.Context, *RecentTurnsRequest) (*RecentTurnsResponse, error)
 	Route(context.Context, *RouteRequest) (*RouteResponse, error)
 	Stream(*StreamRequest, grpc.ServerStreamingServer[StreamResponse]) error
+	Answer(context.Context, *AnswerRequest) (*AnswerResponse, error)
 	Cancel(context.Context, *CancelRequest) (*CancelResponse, error)
-	SetPersona(context.Context, *SetPersonaRequest) (*SetPersonaResponse, error)
+	StopTasks(context.Context, *StopTasksRequest) (*StopTasksResponse, error)
 	ApplyTaskAction(context.Context, *ApplyTaskActionRequest) (*ApplyTaskActionResponse, error)
 	ApplyOperatorTaskAction(context.Context, *ApplyOperatorTaskActionRequest) (*ApplyOperatorTaskActionResponse, error)
 	SaveSession(context.Context, *SaveSessionRequest) (*SaveSessionResponse, error)
@@ -360,6 +399,8 @@ type ChatServiceServer interface {
 	ListSkills(context.Context, *ListSkillsRequest) (*ListSkillsResponse, error)
 	CuratorHealth(context.Context, *CuratorHealthRequest) (*CuratorHealthResponse, error)
 	ReloadChannel(context.Context, *ReloadChannelRequest) (*ReloadChannelResponse, error)
+	// CheckSecret reports resolution in this process without returning a value.
+	CheckSecret(context.Context, *CheckSecretRequest) (*CheckSecretResponse, error)
 	mustEmbedUnimplementedChatServiceServer()
 }
 
@@ -370,6 +411,9 @@ type ChatServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedChatServiceServer struct{}
 
+func (UnimplementedChatServiceServer) RecentLogs(context.Context, *RecentLogsRequest) (*RecentLogsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method RecentLogs not implemented")
+}
 func (UnimplementedChatServiceServer) Snapshot(context.Context, *SnapshotRequest) (*SnapshotResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method Snapshot not implemented")
 }
@@ -388,11 +432,14 @@ func (UnimplementedChatServiceServer) Route(context.Context, *RouteRequest) (*Ro
 func (UnimplementedChatServiceServer) Stream(*StreamRequest, grpc.ServerStreamingServer[StreamResponse]) error {
 	return status.Error(codes.Unimplemented, "method Stream not implemented")
 }
+func (UnimplementedChatServiceServer) Answer(context.Context, *AnswerRequest) (*AnswerResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method Answer not implemented")
+}
 func (UnimplementedChatServiceServer) Cancel(context.Context, *CancelRequest) (*CancelResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method Cancel not implemented")
 }
-func (UnimplementedChatServiceServer) SetPersona(context.Context, *SetPersonaRequest) (*SetPersonaResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method SetPersona not implemented")
+func (UnimplementedChatServiceServer) StopTasks(context.Context, *StopTasksRequest) (*StopTasksResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method StopTasks not implemented")
 }
 func (UnimplementedChatServiceServer) ApplyTaskAction(context.Context, *ApplyTaskActionRequest) (*ApplyTaskActionResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ApplyTaskAction not implemented")
@@ -442,6 +489,9 @@ func (UnimplementedChatServiceServer) CuratorHealth(context.Context, *CuratorHea
 func (UnimplementedChatServiceServer) ReloadChannel(context.Context, *ReloadChannelRequest) (*ReloadChannelResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ReloadChannel not implemented")
 }
+func (UnimplementedChatServiceServer) CheckSecret(context.Context, *CheckSecretRequest) (*CheckSecretResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method CheckSecret not implemented")
+}
 func (UnimplementedChatServiceServer) mustEmbedUnimplementedChatServiceServer() {}
 func (UnimplementedChatServiceServer) testEmbeddedByValue()                     {}
 
@@ -461,6 +511,24 @@ func RegisterChatServiceServer(s grpc.ServiceRegistrar, srv ChatServiceServer) {
 		t.testEmbeddedByValue()
 	}
 	s.RegisterService(&ChatService_ServiceDesc, srv)
+}
+
+func _ChatService_RecentLogs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RecentLogsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ChatServiceServer).RecentLogs(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ChatService_RecentLogs_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ChatServiceServer).RecentLogs(ctx, req.(*RecentLogsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _ChatService_Snapshot_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -564,6 +632,24 @@ func _ChatService_Stream_Handler(srv interface{}, stream grpc.ServerStream) erro
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type ChatService_StreamServer = grpc.ServerStreamingServer[StreamResponse]
 
+func _ChatService_Answer_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AnswerRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ChatServiceServer).Answer(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ChatService_Answer_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ChatServiceServer).Answer(ctx, req.(*AnswerRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _ChatService_Cancel_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CancelRequest)
 	if err := dec(in); err != nil {
@@ -582,20 +668,20 @@ func _ChatService_Cancel_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ChatService_SetPersona_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SetPersonaRequest)
+func _ChatService_StopTasks_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(StopTasksRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ChatServiceServer).SetPersona(ctx, in)
+		return srv.(ChatServiceServer).StopTasks(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ChatService_SetPersona_FullMethodName,
+		FullMethod: ChatService_StopTasks_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ChatServiceServer).SetPersona(ctx, req.(*SetPersonaRequest))
+		return srv.(ChatServiceServer).StopTasks(ctx, req.(*StopTasksRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -888,6 +974,24 @@ func _ChatService_ReloadChannel_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ChatService_CheckSecret_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CheckSecretRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ChatServiceServer).CheckSecret(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ChatService_CheckSecret_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ChatServiceServer).CheckSecret(ctx, req.(*CheckSecretRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ChatService_ServiceDesc is the grpc.ServiceDesc for ChatService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -895,6 +999,10 @@ var ChatService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "gateway.v1.ChatService",
 	HandlerType: (*ChatServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "RecentLogs",
+			Handler:    _ChatService_RecentLogs_Handler,
+		},
 		{
 			MethodName: "Snapshot",
 			Handler:    _ChatService_Snapshot_Handler,
@@ -916,12 +1024,16 @@ var ChatService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _ChatService_Route_Handler,
 		},
 		{
+			MethodName: "Answer",
+			Handler:    _ChatService_Answer_Handler,
+		},
+		{
 			MethodName: "Cancel",
 			Handler:    _ChatService_Cancel_Handler,
 		},
 		{
-			MethodName: "SetPersona",
-			Handler:    _ChatService_SetPersona_Handler,
+			MethodName: "StopTasks",
+			Handler:    _ChatService_StopTasks_Handler,
 		},
 		{
 			MethodName: "ApplyTaskAction",
@@ -986,6 +1098,10 @@ var ChatService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ReloadChannel",
 			Handler:    _ChatService_ReloadChannel_Handler,
+		},
+		{
+			MethodName: "CheckSecret",
+			Handler:    _ChatService_CheckSecret_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{
