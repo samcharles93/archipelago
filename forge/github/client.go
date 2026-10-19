@@ -2,10 +2,12 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"log/slog"
 	"net/http"
+	"net/url"
 	"strings"
 	"sync"
 
@@ -212,7 +214,7 @@ func (c *GitHubClient) GetRepoArchive(ctx context.Context, owner, repo, ref stri
 	}
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("fetch archive %s/%s@%s: %w", owner, repo, ref, err)
+		return nil, fmt.Errorf("fetch archive %s/%s@%s: %w", owner, repo, ref, withoutURL(err))
 	}
 	if resp.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(io.LimitReader(resp.Body, 2048))
@@ -220,6 +222,16 @@ func (c *GitHubClient) GetRepoArchive(ctx context.Context, owner, repo, ref stri
 		return nil, fmt.Errorf("fetch archive %s/%s@%s: status %s: %s", owner, repo, ref, resp.Status, body)
 	}
 	return resp.Body, nil
+}
+
+// withoutURL drops the request URL from a transport error. The pre-signed
+// archive URL carries a token, so it must not reach logs or task errors.
+func withoutURL(err error) error {
+	var uerr *url.Error
+	if errors.As(err, &uerr) {
+		return uerr.Err
+	}
+	return err
 }
 
 // ListReviews returns the reviews on a PR with ID > sinceID.

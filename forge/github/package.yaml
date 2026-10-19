@@ -10,6 +10,7 @@ authority:
   egressHosts:
     - api.github.com
     - github.com
+    - codeload.github.com
 files:
   - path: bin/github
     mode: 493
