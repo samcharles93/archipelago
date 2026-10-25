@@ -1,7 +1,7 @@
 apiVersion: dev.archie.package.v1
 displayName: Gitea
 description: Gitea issues, pull requests and reviews for archie-core. The instance's host is named by the operator's egress acceptance.
-version: 1.0.0
+version: 1.1.0
 contributes:
   extensions:
     - surface: forge

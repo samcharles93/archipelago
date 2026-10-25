@@ -17,13 +17,17 @@ import (
 
 // GiteaClient implements Forge against a Gitea instance.
 type GiteaClient struct {
-	cli   *gitea.Client
-	host  string
-	token string
-	log   *slog.Logger
+	host    string
+	token   string
+	version string
+	http    *http.Client
+	log     *slog.Logger
 
-	labelMu       sync.Mutex
-	labelsEnsured map[string]bool
+	labelMu  sync.Mutex
+	labelIDs map[string]int64
+
+	loginMu sync.Mutex
+	login   string
 }
 
 // NewGitea creates a Gitea-backed Forge implementation.
@@ -33,7 +37,37 @@ func newGitea(token, host string, log *slog.Logger) (forge.Forge, error) {
 	if err != nil {
 		return nil, fmt.Errorf("gitea client %s: %w", host, err)
 	}
-	return &GiteaClient{cli: cli, host: host, token: token, log: log}, nil
+	version, _, err := cli.ServerVersion()
+	if err != nil {
+		return nil, fmt.Errorf("read the Gitea version at %s: %w", host, err)
+	}
+	c := &GiteaClient{host: host, token: token, version: version, http: &http.Client{}, log: log}
+	if _, err := c.newAPI(context.Background()); err != nil {
+		return nil, fmt.Errorf("gitea client %s: %w", host, err)
+	}
+	return c, nil
+}
+
+// api is a client bound to ctx. The SDK reads its context from the client, so
+// one shared client would cancel every caller's request with the first
+// caller's context; the server version is known, so this costs no request.
+func (c *GiteaClient) api(ctx context.Context) *gitea.Client {
+	cli, err := c.newAPI(ctx)
+	if err != nil {
+		// newGitea built one with the same version, so this cannot fail.
+		panic(fmt.Sprintf("gitea client: %v", err))
+	}
+	return cli
+}
+
+func (c *GiteaClient) newAPI(ctx context.Context) (*gitea.Client, error) {
+	return gitea.NewClient(c.host, gitea.SetToken(c.token), gitea.SetHTTPClient(c.http),
+		gitea.SetContext(ctx), gitea.SetGiteaVersion(c.version))
+}
+
+// notFound reports whether Gitea answered 404.
+func notFound(resp *gitea.Response) bool {
+	return resp != nil && resp.StatusCode == http.StatusNotFound
 }
 
 // ── Forge interface ──────────────────────────────────────────────────
@@ -48,13 +82,14 @@ func (c *GiteaClient) AcceptInvitations(ctx context.Context) error {
 // AssignedIssues returns open issues assigned to the given user, excluding PRs.
 func (c *GiteaClient) AssignedIssues(ctx context.Context, owner, repo, assignee string) ([]forge.Issue, error) {
 	opts := gitea.ListIssueOption{
-		PageSize:   50,
-		State:      gitea.StateOpen,
-		AssignedBy: assignee,
+		ListOptions: gitea.ListOptions{PageSize: 50},
+		State:       gitea.StateOpen,
+		Type:        gitea.IssueTypeIssue,
+		AssignedBy:  assignee,
 	}
 	var out []forge.Issue
 	for {
-		issues, resp, err := c.cli.ListRepoIssues(owner, repo, opts)
+		issues, resp, err := c.api(ctx).ListRepoIssues(owner, repo, opts)
 		if err != nil {
 			return nil, fmt.Errorf("list issues %s/%s: %w", owner, repo, err)
 		}
@@ -79,13 +114,14 @@ func (c *GiteaClient) AssignedIssues(ctx context.Context, owner, repo, assignee 
 // IssuesWithLabel returns open issues matching the given label, excluding PRs.
 func (c *GiteaClient) IssuesWithLabel(ctx context.Context, owner, repo, label string) ([]forge.Issue, error) {
 	opts := gitea.ListIssueOption{
-		PageSize: 50,
-		State:    gitea.StateOpen,
-		Labels:   []string{label},
+		ListOptions: gitea.ListOptions{PageSize: 50},
+		State:       gitea.StateOpen,
+		Type:        gitea.IssueTypeIssue,
+		Labels:      []string{label},
 	}
 	var out []forge.Issue
 	for {
-		issues, resp, err := c.cli.ListRepoIssues(owner, repo, opts)
+		issues, resp, err := c.api(ctx).ListRepoIssues(owner, repo, opts)
 		if err != nil {
 			return nil, fmt.Errorf("list issues %s/%s: %w", owner, repo, err)
 		}
@@ -109,16 +145,16 @@ func (c *GiteaClient) IssuesWithLabel(ctx context.Context, owner, repo, label st
 
 // Comment posts an issue comment and returns its id.
 func (c *GiteaClient) Comment(ctx context.Context, owner, repo string, number int, body string) (int64, error) {
-	cm, _, err := c.cli.CreateIssueComment(owner, repo, int64(number), gitea.CreateIssueCommentOption{Body: body})
+	cm, _, err := c.api(ctx).CreateIssueComment(owner, repo, int64(number), gitea.CreateIssueCommentOption{Body: body})
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("comment on %s/%s#%d: %w", owner, repo, number, err)
 	}
 	return cm.ID, nil
 }
 
 // CreatePR opens a pull request and returns its number.
 func (c *GiteaClient) CreatePR(ctx context.Context, owner, repo, title, head, base, body string) (int, error) {
-	pr, _, err := c.cli.CreatePullRequest(owner, repo, gitea.CreatePullRequestOption{
+	pr, _, err := c.api(ctx).CreatePullRequest(owner, repo, gitea.CreatePullRequestOption{
 		Title: title,
 		Head:  head,
 		Base:  base,
@@ -130,16 +166,15 @@ func (c *GiteaClient) CreatePR(ctx context.Context, owner, repo, title, head, ba
 	return int(pr.Index), nil
 }
 
-// PRState returns "open", "merged", or "closed" for a PR.
-// Returns "closed" for non-existent PRs (already merged/closed/removed).
+// PRState returns "open", "merged", or "closed" for a PR. A pull request
+// Gitea no longer has (deleted with its issue) reads as closed.
 func (c *GiteaClient) PRState(ctx context.Context, owner, repo string, number int) (string, error) {
-	pr, _, err := c.cli.GetPullRequest(owner, repo, int64(number))
+	pr, resp, err := c.api(ctx).GetPullRequest(owner, repo, int64(number))
+	if notFound(resp) {
+		return "closed", nil
+	}
 	if err != nil {
-		// "not found" means the PR was already merged/closed and cleaned up.
-		if strings.Contains(err.Error(), "not found") || strings.Contains(err.Error(), "GetUserByName") {
-			return "closed", nil
-		}
-		return "", err
+		return "", fmt.Errorf("get pull request %s/%s#%d: %w", owner, repo, number, err)
 	}
 	if pr.HasMerged {
 		return "merged", nil
@@ -149,7 +184,7 @@ func (c *GiteaClient) PRState(ctx context.Context, owner, repo string, number in
 
 // GetPullRequest returns the forge-neutral metadata for an existing PR.
 func (c *GiteaClient) GetPullRequest(ctx context.Context, owner, repo string, number int) (forge.PullRequest, error) {
-	pr, _, err := c.cli.GetPullRequest(owner, repo, int64(number))
+	pr, _, err := c.api(ctx).GetPullRequest(owner, repo, int64(number))
 	if err != nil {
 		return forge.PullRequest{}, fmt.Errorf("get pull request %s/%s#%d: %w", owner, repo, number, err)
 	}
@@ -176,8 +211,8 @@ func (c *GiteaClient) GetPullRequest(ctx context.Context, owner, repo string, nu
 
 // GetPullRequestDiff fetches the pull request's unified diff over the Gitea
 // API, never a local git clone.
-func (c *GiteaClient) GetPullRequestDiff(_ context.Context, owner, repo string, number int) (string, error) {
-	diff, _, err := c.cli.GetPullRequestDiff(owner, repo, int64(number), gitea.PullRequestDiffOptions{})
+func (c *GiteaClient) GetPullRequestDiff(ctx context.Context, owner, repo string, number int) (string, error) {
+	diff, _, err := c.api(ctx).GetPullRequestDiff(owner, repo, int64(number), gitea.PullRequestDiffOptions{})
 	if err != nil {
 		return "", fmt.Errorf("get pull request diff %s/%s#%d: %w", owner, repo, number, err)
 	}
@@ -187,8 +222,8 @@ func (c *GiteaClient) GetPullRequestDiff(_ context.Context, owner, repo string, 
 // GetRepoArchive fetches a gzipped tar archive of the repository at ref
 // directly from Gitea's own API -- unlike GitHub, no separate unauthenticated
 // fetch is needed.
-func (c *GiteaClient) GetRepoArchive(_ context.Context, owner, repo, ref string) (io.ReadCloser, error) {
-	body, _, err := c.cli.GetArchiveReader(owner, repo, ref, gitea.TarGZArchive)
+func (c *GiteaClient) GetRepoArchive(ctx context.Context, owner, repo, ref string) (io.ReadCloser, error) {
+	body, _, err := c.api(ctx).GetArchiveReader(owner, repo, ref, gitea.TarGZArchive)
 	if err != nil {
 		return nil, fmt.Errorf("get repo archive %s/%s@%s: %w", owner, repo, ref, err)
 	}
@@ -200,7 +235,7 @@ func (c *GiteaClient) ListReviews(ctx context.Context, owner, repo string, numbe
 	var out []forge.Review
 	opts := gitea.ListPullReviewsOptions{}
 	for {
-		reviews, resp, err := c.cli.ListPullReviews(owner, repo, int64(number), opts)
+		reviews, resp, err := c.api(ctx).ListPullReviews(owner, repo, int64(number), opts)
 		if err != nil {
 			return nil, fmt.Errorf("list reviews %s/%s#%d: %w", owner, repo, number, err)
 		}
@@ -234,7 +269,7 @@ func (c *GiteaClient) ListReviewComments(ctx context.Context, owner, repo string
 	}
 	var out []forge.ReviewComment
 	for _, rv := range reviews {
-		comments, _, err := c.cli.ListPullReviewComments(owner, repo, int64(number), rv.ID)
+		comments, _, err := c.api(ctx).ListPullReviewComments(owner, repo, int64(number), rv.ID)
 		if err != nil {
 			return nil, fmt.Errorf("list review comments %s/%s#%d review %d: %w", owner, repo, number, rv.ID, err)
 		}
@@ -264,7 +299,7 @@ func (c *GiteaClient) ListReviewComments(ctx context.Context, owner, repo string
 
 // ReplyToReview posts a reply to an existing review comment.
 func (c *GiteaClient) ReplyToReview(ctx context.Context, owner, repo string, number int, commentID int64, body string) error {
-	if _, _, err := c.cli.CreatePullReviewCommentReply(owner, repo, int64(number), commentID, gitea.CreatePullReviewCommentReplyOptions{Body: body}); err != nil {
+	if _, _, err := c.api(ctx).CreatePullReviewCommentReply(owner, repo, int64(number), commentID, gitea.CreatePullReviewCommentReplyOptions{Body: body}); err != nil {
 		return fmt.Errorf("reply to review comment %d on %s/%s#%d: %w", commentID, owner, repo, number, err)
 	}
 	return nil
@@ -273,15 +308,24 @@ func (c *GiteaClient) ReplyToReview(ctx context.Context, owner, repo string, num
 // CreateReviewComments submits the review on the PR's head, refused if the
 // head moved past reviewedHeadSHA.
 func (c *GiteaClient) CreateReviewComments(ctx context.Context, owner, repo string, number int, reviewedHeadSHA string, review forge.ReviewSubmission) error {
-	pr, err := c.GetPullRequest(ctx, owner, repo, number)
+	pr, _, err := c.api(ctx).GetPullRequest(owner, repo, int64(number))
 	if err != nil {
-		return err
+		return fmt.Errorf("get pull request %s/%s#%d: %w", owner, repo, number, err)
 	}
-	if pr.HeadSHA == "" {
+	if pr.Head == nil || pr.Head.Sha == "" {
 		return fmt.Errorf("resolve head revision of %s/%s#%d: the forge reported no head sha", owner, repo, number)
 	}
-	if err := forge.ReviewHeadDrift(owner, repo, number, pr.HeadSHA, reviewedHeadSHA); err != nil {
+	head := pr.Head.Sha
+	if err := forge.ReviewHeadDrift(owner, repo, number, head, reviewedHeadSHA); err != nil {
 		return err
+	}
+	event := review.Event
+	if event == forge.ReviewEventRequestChanges && pr.Poster != nil {
+		self, err := c.selfLogin(ctx)
+		if err != nil {
+			return err
+		}
+		event = reviewEvent(event, pr.Poster.UserName, self)
 	}
 	reviewComments := make([]gitea.CreatePullReviewComment, 0, len(review.Comments))
 	for _, cm := range review.Comments {
@@ -291,15 +335,39 @@ func (c *GiteaClient) CreateReviewComments(ctx context.Context, owner, repo stri
 			NewLineNum: int64(cm.Line),
 		})
 	}
-	if _, _, err := c.cli.CreatePullReview(owner, repo, int64(number), gitea.CreatePullReviewOptions{
-		State:    gitea.ReviewStateType(review.Event),
+	if _, _, err := c.api(ctx).CreatePullReview(owner, repo, int64(number), gitea.CreatePullReviewOptions{
+		State:    gitea.ReviewStateType(event),
 		Body:     review.Body,
-		CommitID: pr.HeadSHA,
+		CommitID: head,
 		Comments: reviewComments,
 	}); err != nil {
 		return fmt.Errorf("create review comments on %s/%s#%d: %w", owner, repo, number, err)
 	}
 	return nil
+}
+
+// reviewEvent is the event a review can post as: Gitea refuses
+// REQUEST_CHANGES from the pull request's own author, so it comments instead.
+func reviewEvent(event, author, self string) string {
+	if event == forge.ReviewEventRequestChanges && author != "" && strings.EqualFold(author, self) {
+		return forge.ReviewEventComment
+	}
+	return event
+}
+
+// selfLogin is the login the token acts as, read once.
+func (c *GiteaClient) selfLogin(ctx context.Context) (string, error) {
+	c.loginMu.Lock()
+	defer c.loginMu.Unlock()
+	if c.login != "" {
+		return c.login, nil
+	}
+	user, _, err := c.api(ctx).GetMyUserInfo()
+	if err != nil {
+		return "", fmt.Errorf("read the token's user: %w", err)
+	}
+	c.login = user.UserName
+	return c.login, nil
 }
 
 // giteaReviewAuthor returns a review/comment author's login, or "" when the
@@ -335,8 +403,10 @@ func (c *GiteaClient) CloseIssue(ctx context.Context, owner, repo string, number
 		}
 	}
 	state := gitea.StateClosed
-	_, _, err := c.cli.EditIssue(owner, repo, int64(number), gitea.EditIssueOption{State: &state})
-	return err
+	if _, _, err := c.api(ctx).EditIssue(owner, repo, int64(number), gitea.EditIssueOption{State: &state}); err != nil {
+		return fmt.Errorf("close issue %s/%s#%d: %w", owner, repo, number, err)
+	}
+	return nil
 }
 
 // ClosePR closes a pull request without merging, with an optional final
@@ -348,37 +418,45 @@ func (c *GiteaClient) ClosePR(ctx context.Context, owner, repo string, number in
 		}
 	}
 	state := gitea.StateClosed
-	_, _, err := c.cli.EditPullRequest(owner, repo, int64(number), gitea.EditPullRequestOption{State: &state})
-	return err
+	if _, _, err := c.api(ctx).EditPullRequest(owner, repo, int64(number), gitea.EditPullRequestOption{State: &state}); err != nil {
+		return fmt.Errorf("close pull request %s/%s#%d: %w", owner, repo, number, err)
+	}
+	return nil
 }
 
-// MergePR merges a pull request with a merge commit.
+// MergePR merges a pull request with the repository's default merge style.
 func (c *GiteaClient) MergePR(ctx context.Context, owner, repo string, number int) error {
-	_, _, err := c.cli.MergePullRequest(owner, repo, int64(number), gitea.MergePullRequestOption{Style: gitea.MergeStyleMerge})
-	return err
+	api := c.api(ctx)
+	r, _, err := api.GetRepo(owner, repo)
+	if err != nil {
+		return fmt.Errorf("get repository %s/%s: %w", owner, repo, err)
+	}
+	style := r.DefaultMergeStyle
+	if style == "" {
+		style = gitea.MergeStyleMerge
+	}
+	merged, _, err := api.MergePullRequest(owner, repo, int64(number), gitea.MergePullRequestOption{Style: style})
+	if err != nil {
+		return fmt.Errorf("merge pull request %s/%s#%d: %w", owner, repo, number, err)
+	}
+	if !merged {
+		return fmt.Errorf("merge pull request %s/%s#%d: Gitea did not merge it", owner, repo, number)
+	}
+	return nil
 }
 
 // React adds an emoji reaction to an issue.
 func (c *GiteaClient) React(ctx context.Context, owner, repo string, number int, reaction string) error {
-	_, _, err := c.cli.PostIssueReaction(owner, repo, int64(number), reaction)
-	return err
+	if _, _, err := c.api(ctx).PostIssueReaction(owner, repo, int64(number), reaction); err != nil {
+		return fmt.Errorf("react to %s/%s#%d: %w", owner, repo, number, err)
+	}
+	return nil
 }
 
-// LinkBranch associates a branch with an issue via the Gitea API.
+// LinkBranch sets the issue's ref to the branch working on it.
 func (c *GiteaClient) LinkBranch(ctx context.Context, owner, repo string, issueNumber int, branch string) error {
-	url := fmt.Sprintf("%s/api/v1/repos/%s/%s/issues/%d/refs", c.host, owner, repo, issueNumber)
-	body := fmt.Sprintf(`{"ref": "%s"}`, branch)
-	req, _ := http.NewRequestWithContext(ctx, http.MethodPost, url, strings.NewReader(body))
-	req.Header.Set("Authorization", "token "+c.token)
-	req.Header.Set("Content-Type", "application/json")
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return err
-	}
-	_, _ = io.Copy(io.Discard, resp.Body)
-	_ = resp.Body.Close()
-	if resp.StatusCode >= 300 {
-		return fmt.Errorf("link branch: HTTP %d", resp.StatusCode)
+	if _, _, err := c.api(ctx).EditIssue(owner, repo, int64(issueNumber), gitea.EditIssueOption{Ref: &branch}); err != nil {
+		return fmt.Errorf("link branch %s to %s/%s#%d: %w", branch, owner, repo, issueNumber, err)
 	}
 	return nil
 }
@@ -389,7 +467,7 @@ func (c *GiteaClient) SetStateLabel(ctx context.Context, owner, repo string, num
 	for _, l := range knownLabels {
 		known[l] = true
 	}
-	issue, _, err := c.cli.GetIssue(owner, repo, int64(number))
+	issue, _, err := c.api(ctx).GetIssue(owner, repo, int64(number))
 	if err != nil {
 		c.log.Warn("set state label: get issue failed", "issue", number, "err", err)
 		return
@@ -399,7 +477,7 @@ func (c *GiteaClient) SetStateLabel(ctx context.Context, owner, repo string, num
 		if l.Name == label {
 			label = "" // already present
 		} else if known[l.Name] {
-			if _, err := c.cli.DeleteIssueLabel(owner, repo, int64(number), l.ID); err != nil {
+			if _, err := c.api(ctx).DeleteIssueLabel(owner, repo, int64(number), l.ID); err != nil {
 				c.log.Warn("remove state label failed", "label", l.Name, "err", err)
 			}
 		}
@@ -407,54 +485,75 @@ func (c *GiteaClient) SetStateLabel(ctx context.Context, owner, repo string, num
 	if label == "" {
 		return
 	}
-	// Find or create the target label and add it by ID.
-	labelID := c.resolveLabelID(owner, repo, label)
-	if labelID == 0 {
-		return // ensureLabel already logged
+	labelID, err := c.labelID(ctx, owner, repo, label)
+	if err != nil {
+		c.log.Warn("resolve state label failed", "label", label, "err", err)
+		return
 	}
-	if _, _, err := c.cli.AddIssueLabels(owner, repo, int64(number), gitea.IssueLabelsOption{
+	if _, _, err := c.api(ctx).AddIssueLabels(owner, repo, int64(number), gitea.IssueLabelsOption{
 		Labels: []int64{labelID},
 	}); err != nil {
 		c.log.Warn("add state label failed", "label", label, "err", err)
 	}
 }
 
-// resolveLabelID returns the ID of a label, creating it if necessary.
-func (c *GiteaClient) resolveLabelID(owner, repo, name string) int64 {
-	labels, _, err := c.cli.ListRepoLabels(owner, repo, gitea.ListLabelsOptions{PageSize: 100})
-	if err != nil {
-		c.log.Warn("list repo labels failed", "err", err)
-		return 0
+// labelID returns a label's ID, creating the label when the repository has
+// none by that name.
+func (c *GiteaClient) labelID(ctx context.Context, owner, repo, name string) (int64, error) {
+	key := owner + "/" + repo + "/" + name
+	c.labelMu.Lock()
+	defer c.labelMu.Unlock()
+	if id, ok := c.labelIDs[key]; ok {
+		return id, nil
 	}
-	for _, l := range labels {
-		if l.Name == name {
-			return l.ID
+	api := c.api(ctx)
+	opts := gitea.ListLabelsOptions{ListOptions: gitea.ListOptions{PageSize: 50}}
+	var id int64
+	for id == 0 {
+		labels, resp, err := api.ListRepoLabels(owner, repo, opts)
+		if err != nil {
+			return 0, fmt.Errorf("list labels %s/%s: %w", owner, repo, err)
 		}
-	}
-	// Create the label.
-	c.ensureLabel(owner, repo, name)
-	// Re-list to get the new ID.
-	labels, _, err = c.cli.ListRepoLabels(owner, repo, gitea.ListLabelsOptions{PageSize: 100})
-	if err != nil {
-		return 0
-	}
-	for _, l := range labels {
-		if l.Name == name {
-			return l.ID
+		for _, l := range labels {
+			if l.Name == name {
+				id = l.ID
+			}
 		}
+		if resp.NextPage == 0 {
+			break
+		}
+		opts.Page = resp.NextPage
 	}
-	return 0
+	if id == 0 {
+		color := giteaStateLabelColors[name]
+		if color == "" {
+			color = "#bfd4f2"
+		}
+		created, _, err := api.CreateLabel(owner, repo, gitea.CreateLabelOption{
+			Name:        name,
+			Color:       color,
+			Description: "archie task state (managed automatically)",
+		})
+		if err != nil {
+			return 0, fmt.Errorf("create label %s on %s/%s: %w", name, owner, repo, err)
+		}
+		id = created.ID
+	}
+	if c.labelIDs == nil {
+		c.labelIDs = map[string]int64{}
+	}
+	c.labelIDs[key] = id
+	return id, nil
 }
 
 // VerifyPush confirms the token can push to the repo.
 func (c *GiteaClient) VerifyPush(ctx context.Context, owner, repo string) error {
-	r, _, err := c.cli.GetRepo(owner, repo)
+	r, resp, err := c.api(ctx).GetRepo(owner, repo)
+	if notFound(resp) {
+		return fmt.Errorf("repository %s/%s not found, or the token cannot see it", owner, repo)
+	}
 	if err != nil {
-		// Gitea SDK may return "GetUserByName" for a non-existent repo.
-		if strings.Contains(err.Error(), "GetUserByName") {
-			return fmt.Errorf("repo %s/%s not found or token lacks access", owner, repo)
-		}
-		return fmt.Errorf("get repo %s/%s: %w", owner, repo, err)
+		return fmt.Errorf("get repository %s/%s: %w", owner, repo, err)
 	}
 	if !r.Permissions.Push {
 		return fmt.Errorf("no push permission on %s/%s", owner, repo)
@@ -479,33 +578,4 @@ var giteaStateLabelColors = map[string]string{
 	"archie:waiting": "#fbca04",
 	"archie:pr":      "#0e8a16",
 	"archie:parked":  "#d93f0b",
-}
-
-func (c *GiteaClient) ensureLabel(owner, repo, name string) {
-	key := owner + "/" + repo + "/" + name
-	c.labelMu.Lock()
-	seen := c.labelsEnsured[key]
-	c.labelMu.Unlock()
-	if seen {
-		return
-	}
-	color := giteaStateLabelColors[name]
-	if color == "" {
-		color = "#bfd4f2"
-	}
-	_, _, err := c.cli.CreateLabel(owner, repo, gitea.CreateLabelOption{
-		Name:        name,
-		Color:       color,
-		Description: "archie task state (managed automatically)",
-	})
-	if err != nil && !strings.Contains(err.Error(), "already exists") && !strings.Contains(err.Error(), "422") {
-		c.log.Warn("create label failed", "label", name, "err", err)
-		return
-	}
-	c.labelMu.Lock()
-	if c.labelsEnsured == nil {
-		c.labelsEnsured = map[string]bool{}
-	}
-	c.labelsEnsured[key] = true
-	c.labelMu.Unlock()
 }
