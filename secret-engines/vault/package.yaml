@@ -1,7 +1,7 @@
 apiVersion: dev.archie.package.v1
 displayName: Vault / OpenBao
-description: Resolve secret references from a KV secret through the vault CLI.
-version: 1.0.0
+description: Resolve secret references from a KV secret over the Vault or OpenBao API.
+version: 1.1.0
 contributes:
   extensions:
     - surface: secretengine
