@@ -9,6 +9,7 @@ require (
 	github.com/emersion/go-msgauth v0.7.0
 	github.com/emersion/go-sasl v0.0.0-20241020182733-b788ff22d5a6
 	github.com/emersion/go-smtp v0.25.0
+	github.com/gofri/go-github-ratelimit/v2 v2.0.2
 	github.com/google/go-github/v78 v78.0.0
 	github.com/hashicorp/go-plugin v1.8.0
 	google.golang.org/grpc v1.84.0

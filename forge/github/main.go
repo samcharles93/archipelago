@@ -15,10 +15,11 @@ func main() {
 	})
 }
 
-// normalizeReviewState maps a GitHub review state onto the neutral states.
-// Unknown states pass through lowercased.
+// normalizeReviewState maps a GitHub review state onto the neutral states. The
+// REST API spells states in upper case and webhooks in lower case; unknown
+// states pass through lowercased.
 func normalizeReviewState(s string) string {
-	switch s {
+	switch strings.ToUpper(s) {
 	case "APPROVED":
 		return forge.ReviewStateApproved
 	case "CHANGES_REQUESTED":

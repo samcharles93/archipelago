@@ -10,11 +10,18 @@ import (
 	"net/url"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/samcharles93/archipelago/sdk/forge"
 
+	"github.com/gofri/go-github-ratelimit/v2/github_ratelimit"
+	"github.com/gofri/go-github-ratelimit/v2/github_ratelimit/github_secondary_ratelimit"
 	"github.com/google/go-github/v78/github"
 )
+
+// maxRateLimitWait bounds one wait on a secondary rate limit; a longer one
+// fails the call rather than holding it past what a caller waits for.
+const maxRateLimitWait = 2 * time.Minute
 
 // GitHubClient implements Forge against the GitHub API.
 type GitHubClient struct {
@@ -23,12 +30,16 @@ type GitHubClient struct {
 
 	labelMu       sync.Mutex
 	labelsEnsured map[string]bool
+
+	loginMu sync.Mutex
+	login   string
 }
 
 // NewGitHub creates a GitHub-backed Forge implementation. Non-github.com
 // hosts are configured using GitHub Enterprise's API and upload URL conventions.
 func newGitHub(token, host string, log *slog.Logger) (forge.Forge, error) {
-	client := github.NewClient(nil)
+	client := github.NewClient(github_ratelimit.NewClient(nil,
+		github_secondary_ratelimit.WithSingleSleepLimit(maxRateLimitWait, nil)))
 	if strings.TrimRight(host, "/") != "https://github.com" {
 		var err error
 		client, err = client.WithEnterpriseURLs(host, host)
@@ -44,11 +55,11 @@ func newGitHub(token, host string, log *slog.Logger) (forge.Forge, error) {
 func (c *GitHubClient) AcceptInvitations(ctx context.Context) error {
 	invites, _, err := c.gh.Users.ListInvitations(ctx, nil)
 	if err != nil {
-		return fmt.Errorf("list invitations: %w", err)
+		return apiError("list invitations", err)
 	}
 	for _, inv := range invites {
 		if _, err := c.gh.Users.AcceptInvitation(ctx, inv.GetID()); err != nil {
-			c.log.Warn("accept invitation failed", "repo", inv.GetRepo().GetFullName(), "err", err)
+			c.log.Warn("accept invitation failed", "repo", inv.GetRepo().GetFullName(), "err", apiError("accept invitation", err))
 			continue
 		}
 		c.log.Info("accepted repository invitation", "repo", inv.GetRepo().GetFullName())
@@ -69,7 +80,7 @@ func (c *GitHubClient) AssignedIssues(ctx context.Context, owner, repo, assignee
 	for {
 		issues, resp, err := c.gh.Issues.ListByRepo(ctx, owner, repo, opts)
 		if err != nil {
-			return nil, fmt.Errorf("list issues %s/%s: %w", owner, repo, err)
+			return nil, apiError(fmt.Sprintf("list issues %s/%s", owner, repo), err)
 		}
 		for _, is := range issues {
 			if !is.IsPullRequest() {
@@ -112,7 +123,7 @@ func (c *GitHubClient) IssuesWithLabel(ctx context.Context, owner, repo, label s
 	for {
 		issues, resp, err := c.gh.Issues.ListByRepo(ctx, owner, repo, opts)
 		if err != nil {
-			return nil, fmt.Errorf("list issues %s/%s: %w", owner, repo, err)
+			return nil, apiError(fmt.Sprintf("list issues %s/%s", owner, repo), err)
 		}
 		for _, is := range issues {
 			if !is.IsPullRequest() {
@@ -138,7 +149,7 @@ func (c *GitHubClient) Comment(ctx context.Context, owner, repo string, number i
 	cm, _, err := c.gh.Issues.CreateComment(ctx, owner, repo, number,
 		&github.IssueComment{Body: new(body)})
 	if err != nil {
-		return 0, err
+		return 0, apiError(fmt.Sprintf("comment on %s/%s#%d", owner, repo, number), err)
 	}
 	return cm.GetID(), nil
 }
@@ -152,7 +163,7 @@ func (c *GitHubClient) CreatePR(ctx context.Context, owner, repo, title, head, b
 		Body:  new(body),
 	})
 	if err != nil {
-		return 0, fmt.Errorf("create PR %s/%s: %w", owner, repo, err)
+		return 0, apiError(fmt.Sprintf("create pull request %s/%s", owner, repo), err)
 	}
 	return pr.GetNumber(), nil
 }
@@ -161,7 +172,7 @@ func (c *GitHubClient) CreatePR(ctx context.Context, owner, repo, title, head, b
 func (c *GitHubClient) PRState(ctx context.Context, owner, repo string, number int) (string, error) {
 	pr, _, err := c.gh.PullRequests.Get(ctx, owner, repo, number)
 	if err != nil {
-		return "", err
+		return "", apiError(fmt.Sprintf("get pull request %s/%s#%d", owner, repo, number), err)
 	}
 	if pr.GetMerged() {
 		return "merged", nil
@@ -173,7 +184,7 @@ func (c *GitHubClient) PRState(ctx context.Context, owner, repo string, number i
 func (c *GitHubClient) GetPullRequest(ctx context.Context, owner, repo string, number int) (forge.PullRequest, error) {
 	pr, _, err := c.gh.PullRequests.Get(ctx, owner, repo, number)
 	if err != nil {
-		return forge.PullRequest{}, fmt.Errorf("get pull request %s/%s#%d: %w", owner, repo, number, err)
+		return forge.PullRequest{}, apiError(fmt.Sprintf("get pull request %s/%s#%d", owner, repo, number), err)
 	}
 	state := pr.GetState()
 	if pr.GetMerged() {
@@ -196,7 +207,7 @@ func (c *GitHubClient) GetPullRequest(ctx context.Context, owner, repo string, n
 func (c *GitHubClient) GetPullRequestDiff(ctx context.Context, owner, repo string, number int) (string, error) {
 	diff, _, err := c.gh.PullRequests.GetRaw(ctx, owner, repo, number, github.RawOptions{Type: github.Diff})
 	if err != nil {
-		return "", fmt.Errorf("get pull request diff %s/%s#%d: %w", owner, repo, number, err)
+		return "", apiError(fmt.Sprintf("get pull request diff %s/%s#%d", owner, repo, number), err)
 	}
 	return diff, nil
 }
@@ -206,7 +217,7 @@ func (c *GitHubClient) GetPullRequestDiff(ctx context.Context, owner, repo strin
 func (c *GitHubClient) GetRepoArchive(ctx context.Context, owner, repo, ref string) (io.ReadCloser, error) {
 	url, _, err := c.gh.Repositories.GetArchiveLink(ctx, owner, repo, github.Tarball, &github.RepositoryContentGetOptions{Ref: ref}, 5)
 	if err != nil {
-		return nil, fmt.Errorf("resolve archive link %s/%s@%s: %w", owner, repo, ref, err)
+		return nil, apiError(fmt.Sprintf("resolve archive link %s/%s@%s", owner, repo, ref), err)
 	}
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url.String(), nil)
 	if err != nil {
@@ -241,7 +252,7 @@ func (c *GitHubClient) ListReviews(ctx context.Context, owner, repo string, numb
 	for {
 		reviews, resp, err := c.gh.PullRequests.ListReviews(ctx, owner, repo, number, opts)
 		if err != nil {
-			return nil, fmt.Errorf("list reviews %s/%s#%d: %w", owner, repo, number, err)
+			return nil, apiError(fmt.Sprintf("list reviews %s/%s#%d", owner, repo, number), err)
 		}
 		for _, r := range reviews {
 			if r.GetID() <= sinceID {
@@ -270,7 +281,7 @@ func (c *GitHubClient) ListReviewComments(ctx context.Context, owner, repo strin
 	for {
 		comments, resp, err := c.gh.PullRequests.ListComments(ctx, owner, repo, number, opts)
 		if err != nil {
-			return nil, fmt.Errorf("list review comments %s/%s#%d: %w", owner, repo, number, err)
+			return nil, apiError(fmt.Sprintf("list review comments %s/%s#%d", owner, repo, number), err)
 		}
 		for _, cm := range comments {
 			if cm.GetID() <= sinceID {
@@ -302,7 +313,7 @@ func (c *GitHubClient) ListReviewComments(ctx context.Context, owner, repo strin
 // ReplyToReview posts a reply to an existing review comment.
 func (c *GitHubClient) ReplyToReview(ctx context.Context, owner, repo string, number int, commentID int64, body string) error {
 	if _, _, err := c.gh.PullRequests.CreateCommentInReplyTo(ctx, owner, repo, number, body, commentID); err != nil {
-		return fmt.Errorf("reply to review comment %d on %s/%s#%d: %w", commentID, owner, repo, number, err)
+		return apiError(fmt.Sprintf("reply to review comment %d on %s/%s#%d", commentID, owner, repo, number), err)
 	}
 	return nil
 }
@@ -310,12 +321,23 @@ func (c *GitHubClient) ReplyToReview(ctx context.Context, owner, repo string, nu
 // CreateReviewComments submits the review on the PR head's new side, refused
 // if the head moved past reviewedHeadSHA.
 func (c *GitHubClient) CreateReviewComments(ctx context.Context, owner, repo string, number int, reviewedHeadSHA string, review forge.ReviewSubmission) error {
-	head, err := c.reviewHeadSHA(ctx, owner, repo, number)
+	pr, _, err := c.gh.PullRequests.Get(ctx, owner, repo, number)
 	if err != nil {
-		return err
+		return apiError(fmt.Sprintf("get pull request %s/%s#%d", owner, repo, number), err)
+	}
+	head := pr.GetHead().GetSHA()
+	if head == "" {
+		return fmt.Errorf("resolve head revision of %s/%s#%d: the forge reported no head sha", owner, repo, number)
 	}
 	if err := forge.ReviewHeadDrift(owner, repo, number, head, reviewedHeadSHA); err != nil {
 		return err
+	}
+	if review.Event == forge.ReviewEventRequestChanges {
+		self, err := c.selfLogin(ctx)
+		if err != nil {
+			return err
+		}
+		review.Event = reviewEvent(review.Event, pr.GetUser().GetLogin(), self)
 	}
 	comments := make([]*github.DraftReviewComment, 0, len(review.Comments))
 	for _, cm := range review.Comments {
@@ -338,24 +360,33 @@ func (c *GitHubClient) CreateReviewComments(ctx context.Context, owner, repo str
 		Comments: comments,
 	}
 	if _, _, err := c.gh.PullRequests.CreateReview(ctx, owner, repo, number, req); err != nil {
-		return fmt.Errorf("create review on %s/%s#%d: %w", owner, repo, number, err)
+		return apiError(fmt.Sprintf("create review on %s/%s#%d", owner, repo, number), err)
 	}
 	return nil
 }
 
-// reviewHeadSHA resolves the commit a PR's line numbers are anchored to. A
-// forge that reports an empty head SHA is a failure, not an anchor: an empty
-// commit_id makes GitHub reject every comment in the set with nothing that says
-// why.
-func (c *GitHubClient) reviewHeadSHA(ctx context.Context, owner, repo string, number int) (string, error) {
-	pr, err := c.GetPullRequest(ctx, owner, repo, number)
+// reviewEvent is the event a review can post as: GitHub refuses
+// REQUEST_CHANGES from the pull request's own author, so it comments instead.
+func reviewEvent(event, author, self string) string {
+	if event == forge.ReviewEventRequestChanges && author != "" && strings.EqualFold(author, self) {
+		return forge.ReviewEventComment
+	}
+	return event
+}
+
+// selfLogin is the login the token acts as, read once.
+func (c *GitHubClient) selfLogin(ctx context.Context) (string, error) {
+	c.loginMu.Lock()
+	defer c.loginMu.Unlock()
+	if c.login != "" {
+		return c.login, nil
+	}
+	user, _, err := c.gh.Users.Get(ctx, "")
 	if err != nil {
-		return "", err
+		return "", apiError("read the token's user", err)
 	}
-	if pr.HeadSHA == "" {
-		return "", fmt.Errorf("resolve head revision of %s/%s#%d: the forge reported no head sha", owner, repo, number)
-	}
-	return pr.HeadSHA, nil
+	c.login = user.GetLogin()
+	return c.login, nil
 }
 
 // CloseIssue closes an issue with a final comment (feasibility "won't do").
@@ -367,7 +398,7 @@ func (c *GitHubClient) CloseIssue(ctx context.Context, owner, repo string, numbe
 	}
 	_, _, err := c.gh.Issues.Edit(ctx, owner, repo, number,
 		&github.IssueRequest{State: new("closed")})
-	return err
+	return apiError(fmt.Sprintf("close issue %s/%s#%d", owner, repo, number), err)
 }
 
 // ClosePR closes a pull request without merging, with an optional final
@@ -380,13 +411,13 @@ func (c *GitHubClient) ClosePR(ctx context.Context, owner, repo string, number i
 	}
 	_, _, err := c.gh.PullRequests.Edit(ctx, owner, repo, number,
 		&github.PullRequest{State: new("closed")})
-	return err
+	return apiError(fmt.Sprintf("close pull request %s/%s#%d", owner, repo, number), err)
 }
 
 // MergePR merges a pull request with the repository's default method.
 func (c *GitHubClient) MergePR(ctx context.Context, owner, repo string, number int) error {
 	_, _, err := c.gh.PullRequests.Merge(ctx, owner, repo, number, "", nil)
-	return err
+	return apiError(fmt.Sprintf("merge pull request %s/%s#%d", owner, repo, number), err)
 }
 
 // LinkBranch associates a branch with an issue (GitHub stub  --  Gitea is primary).
@@ -410,7 +441,7 @@ const defaultLabelColor = "bfd4f2"
 // acknowledgement on pickup.
 func (c *GitHubClient) React(ctx context.Context, owner, repo string, number int, reaction string) error {
 	_, _, err := c.gh.Reactions.CreateIssueReaction(ctx, owner, repo, number, reaction)
-	return err
+	return apiError(fmt.Sprintf("react to %s/%s#%d", owner, repo, number), err)
 }
 
 // ensureLabel creates the state label in the repo if it doesn't exist.
@@ -431,9 +462,9 @@ func (c *GitHubClient) ensureLabel(ctx context.Context, owner, repo, name string
 		Color:       new(color),
 		Description: new("archie task state (managed automatically)"),
 	})
-	// 422 = already exists; both outcomes mean the label is available.
-	if err != nil && !strings.Contains(err.Error(), "already_exists") {
-		c.log.Warn("create label failed", "label", name, "err", err)
+	// Already existing is as good as created.
+	if err != nil && !alreadyExists(err) {
+		c.log.Warn("create label failed", "label", name, "err", apiError("create label", err))
 		return
 	}
 	c.labelMu.Lock()
@@ -454,14 +485,14 @@ func (c *GitHubClient) SetStateLabel(ctx context.Context, owner, repo string, nu
 	}
 	issue, _, err := c.gh.Issues.Get(ctx, owner, repo, number)
 	if err != nil {
-		c.log.Warn("set state label: get issue failed", "issue", number, "err", err)
+		c.log.Warn("set state label: get issue failed", "issue", number, "err", apiError("get issue", err))
 		return
 	}
 	for _, l := range issue.Labels {
 		name := l.GetName()
 		if name != label && known[name] {
 			if _, err := c.gh.Issues.RemoveLabelForIssue(ctx, owner, repo, number, name); err != nil {
-				c.log.Warn("remove state label failed", "label", name, "err", err)
+				c.log.Warn("remove state label failed", "label", name, "err", apiError("remove label", err))
 			}
 		}
 		if name == label {
@@ -473,7 +504,7 @@ func (c *GitHubClient) SetStateLabel(ctx context.Context, owner, repo string, nu
 	}
 	c.ensureLabel(ctx, owner, repo, label)
 	if _, _, err := c.gh.Issues.AddLabelsToIssue(ctx, owner, repo, number, []string{label}); err != nil {
-		c.log.Warn("add state label failed", "label", label, "err", err)
+		c.log.Warn("add state label failed", "label", label, "err", apiError("add label", err))
 	}
 }
 
@@ -482,7 +513,7 @@ func (c *GitHubClient) SetStateLabel(ctx context.Context, owner, repo string, nu
 func (c *GitHubClient) VerifyPush(ctx context.Context, owner, repo string) error {
 	r, _, err := c.gh.Repositories.Get(ctx, owner, repo)
 	if err != nil {
-		return fmt.Errorf("get repo %s/%s: %w", owner, repo, err)
+		return apiError(fmt.Sprintf("get repository %s/%s", owner, repo), err)
 	}
 	perms := r.GetPermissions()
 	if !perms["push"] {

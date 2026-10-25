@@ -31,7 +31,7 @@ func (c *GitHubClient) ParseWebhook(headers map[string]string, body []byte) (for
 			PRNumber: e.GetPullRequest().GetNumber(),
 			ReviewID: review.GetID(),
 			Author:   review.GetUser().GetLogin(),
-			State:    review.GetState(),
+			State:    normalizeReviewState(review.GetState()),
 			Body:     review.GetBody(),
 		}}, nil
 	case *github.PullRequestReviewCommentEvent:
