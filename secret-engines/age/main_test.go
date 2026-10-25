@@ -2,12 +2,16 @@ package main
 
 import (
 	"bytes"
+	"crypto/ed25519"
+	"encoding/pem"
 	"errors"
 	"os"
 	"path/filepath"
 	"testing"
 
 	"filippo.io/age"
+	"filippo.io/age/agessh"
+	"golang.org/x/crypto/ssh"
 
 	"github.com/samcharles93/archipelago/sdk/secretengine"
 )
@@ -47,6 +51,30 @@ func TestResolve(t *testing.T) {
 		if tc.missing != errors.Is(err, secretengine.ErrNotFound) || got != tc.want {
 			t.Errorf("resolve(%q) = %q, %v", tc.key, got, err)
 		}
+	}
+
+	// An unencrypted SSH key, which the age CLI this engine replaced accepted.
+	pub, priv, err := ed25519.GenerateKey(nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	sshPub, _ := ssh.NewPublicKey(pub)
+	recipient, err := agessh.NewEd25519Recipient(sshPub)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var sshSealed bytes.Buffer
+	w, _ = age.Encrypt(&sshSealed, recipient)
+	_, _ = w.Write([]byte("token=via-ssh\n"))
+	_ = w.Close()
+	block, err := ssh.MarshalPrivateKey(priv, "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("AGE_FILE", write("ssh.age", sshSealed.Bytes()))
+	t.Setenv("AGE_IDENTITY", write("id_ed25519", pem.EncodeToMemory(block)))
+	if got, err := resolve(t.Context(), "token"); err != nil || got != "via-ssh" {
+		t.Fatalf("SSH identity: %q, %v", got, err)
 	}
 
 	other, _ := age.GenerateX25519Identity()
