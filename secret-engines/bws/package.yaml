@@ -1,7 +1,7 @@
 apiVersion: dev.archie.package.v1
 displayName: Bitwarden Secrets Manager
 description: Resolve secret references from Bitwarden Secrets Manager through the bws CLI.
-version: 1.0.0
+version: 1.1.0
 contributes:
   extensions:
     - surface: secretengine

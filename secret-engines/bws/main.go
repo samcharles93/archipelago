@@ -22,28 +22,49 @@ import (
 	secretenginev1 "github.com/samcharles93/archipelago/sdk/secretengine/v1"
 )
 
-const listTimeout = 30 * time.Second
+const (
+	listTimeout = 30 * time.Second
+	// cacheTTL bounds how long a rotated secret keeps its old value.
+	cacheTTL = 5 * time.Minute
+	// missRefresh bounds how often a key the cache lacks re-reads the list, so
+	// a secret added a moment ago resolves without hammering the API.
+	missRefresh = 30 * time.Second
+)
 
 type engine struct {
 	secretenginev1.UnimplementedSecretEngineServiceServer
+	list func(context.Context) (map[string]string, error)
 
-	once    sync.Once
+	mu      sync.Mutex
 	secrets map[string]string
-	err     error
+	fetched time.Time
 }
 
 func (*engine) Configure(context.Context, *secretenginev1.ConfigureRequest) (*secretenginev1.ConfigureResponse, error) {
 	return &secretenginev1.ConfigureResponse{}, nil
 }
 
+// Resolve serves a key from the cached list, re-reading the list when it is
+// stale or lacks the key. A failed read is never cached: the next call tries
+// again, and a stale value it already holds is served meanwhile.
 func (e *engine) Resolve(ctx context.Context, r *secretenginev1.ResolveRequest) (*secretenginev1.ResolveResponse, error) {
-	e.once.Do(func() { e.secrets, e.err = list(ctx) })
-	if e.err != nil {
-		return nil, status.Error(codes.Unavailable, e.err.Error())
+	e.mu.Lock()
+	defer e.mu.Unlock()
+	key := r.GetKey()
+	value, ok := e.secrets[key]
+	age := time.Since(e.fetched)
+	if e.secrets == nil || age > cacheTTL || (!ok && age > missRefresh) {
+		secrets, err := e.list(ctx)
+		switch {
+		case err == nil:
+			e.secrets, e.fetched = secrets, time.Now()
+			value, ok = secrets[key]
+		case !ok:
+			return nil, status.Error(codes.Unavailable, err.Error())
+		}
 	}
-	value, ok := e.secrets[r.GetKey()]
 	if !ok {
-		return nil, status.Errorf(codes.NotFound, "bws secret %q not found", r.GetKey())
+		return nil, status.Errorf(codes.NotFound, "bws secret %q not found", key)
 	}
 	return &secretenginev1.ResolveResponse{Value: value}, nil
 }
@@ -88,4 +109,4 @@ func find() (string, error) {
 	return "", errors.New("bws executable not found")
 }
 
-func main() { secretengine.Serve(&engine{}) }
+func main() { secretengine.Serve(&engine{list: list}) }
