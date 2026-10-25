@@ -30,3 +30,27 @@ func TestAuthenticated(t *testing.T) {
 		})
 	}
 }
+
+func TestAutomatic(t *testing.T) {
+	for _, tc := range []struct {
+		name    string
+		headers map[string]string
+		want    bool
+	}{
+		{"written by a person", nil, false},
+		{"explicitly not automatic", map[string]string{"Auto-Submitted": "no"}, false},
+		{"out-of-office reply", map[string]string{"Auto-Submitted": "auto-replied"}, true},
+		{"bulk precedence", map[string]string{"Precedence": "bulk"}, true},
+		{"mailing list", map[string]string{"List-Id": "<dev.example.org>"}, true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			var h mail.Header
+			for k, v := range tc.headers {
+				h.Set(k, v)
+			}
+			if got := automatic(h); got != tc.want {
+				t.Fatalf("automatic = %v, want %v", got, tc.want)
+			}
+		})
+	}
+}
