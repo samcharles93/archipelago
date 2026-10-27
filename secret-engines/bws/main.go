@@ -4,11 +4,11 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -69,18 +69,32 @@ func (e *engine) Resolve(ctx context.Context, r *secretenginev1.ResolveRequest) 
 	return &secretenginev1.ResolveResponse{Value: value}, nil
 }
 
-func list(ctx context.Context) (map[string]string, error) {
+// runner runs the bws CLI and returns its stdout and stderr.
+type runner func(context.Context) (stdout, stderr []byte, err error)
+
+func list(ctx context.Context) (map[string]string, error) { return listWith(ctx, runBws) }
+
+func runBws(ctx context.Context) ([]byte, []byte, error) {
 	command, err := find()
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	ctx, cancel := context.WithTimeout(ctx, listTimeout)
-	defer cancel()
 	cmd := exec.CommandContext(ctx, command, "secret", "list", "--output", "json")
 	cmd.Env = os.Environ()
-	cmd.Stderr = io.Discard
-	raw, err := cmd.Output()
+	var stdout, stderr bytes.Buffer
+	cmd.Stdout, cmd.Stderr = &stdout, &stderr
+	err = cmd.Run()
+	return stdout.Bytes(), stderr.Bytes(), err
+}
+
+func listWith(ctx context.Context, run runner) (map[string]string, error) {
+	ctx, cancel := context.WithTimeout(ctx, listTimeout)
+	defer cancel()
+	raw, stderr, err := run(ctx)
 	if err != nil {
+		if reason := bytes.TrimSpace(stderr); len(reason) > 0 {
+			return nil, fmt.Errorf("list bws secrets: %w: %.300s", err, reason)
+		}
 		return nil, fmt.Errorf("list bws secrets: %w", err)
 	}
 	var records []struct{ Key, Value string }

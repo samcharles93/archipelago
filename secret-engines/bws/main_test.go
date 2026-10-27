@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"errors"
+	"strings"
 	"testing"
 	"time"
 
@@ -39,5 +40,33 @@ func TestResolveRecovers(t *testing.T) {
 	e.list = func(context.Context) (map[string]string, error) { return nil, errors.New("down") }
 	if v, code := resolve(); code != codes.OK || v != "v1" {
 		t.Fatalf("stale during outage: %q, %v; want v1, OK", v, code)
+	}
+}
+
+func TestListWithFailure(t *testing.T) {
+	const secret = "s3cr3t-value"
+	tests := []struct {
+		name   string
+		stdout string
+		stderr string
+		err    error
+		want   string
+	}{
+		{"stderr reason", "", "Error: invalid access token\n", errors.New("exit status 1"), "invalid access token"},
+		{"no stderr", "", "", errors.New("exit status 1"), "exit status 1"},
+		{"stdout never leaks", secret, "Error: forbidden", errors.New("exit status 1"), "forbidden"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, err := listWith(t.Context(), func(context.Context) ([]byte, []byte, error) {
+				return []byte(tt.stdout), []byte(tt.stderr), tt.err
+			})
+			if err == nil || !strings.Contains(err.Error(), tt.want) {
+				t.Fatalf("err = %v, want it to contain %q", err, tt.want)
+			}
+			if strings.Contains(err.Error(), secret) {
+				t.Fatalf("err leaks stdout: %v", err)
+			}
+		})
 	}
 }
