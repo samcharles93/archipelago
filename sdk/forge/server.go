@@ -254,12 +254,16 @@ func (s *server) CreateReviewComments(ctx context.Context, r *forgev1.CreateRevi
 	return &forgev1.CreateReviewCommentsResponse{}, fail(c.CreateReviewComments(ctx, pr.GetRepo().GetOwner(), pr.GetRepo().GetRepo(), int(pr.GetNumber()), r.GetReviewedHeadSha(), ReviewSubmission{Event: event, Body: r.GetBody(), Comments: comments}))
 }
 
-func (s *server) AcceptInvitations(ctx context.Context, _ *forgev1.AcceptInvitationsRequest) (*forgev1.AcceptInvitationsResponse, error) {
+func (s *server) AcceptInvitations(ctx context.Context, r *forgev1.AcceptInvitationsRequest) (*forgev1.AcceptInvitationsResponse, error) {
 	f, err := s.forge()
 	if err != nil {
 		return nil, err
 	}
-	return &forgev1.AcceptInvitationsResponse{}, fail(f.AcceptInvitations(ctx))
+	repos := make([]RepoRef, 0, len(r.GetRepositories()))
+	for _, repo := range r.GetRepositories() {
+		repos = append(repos, RepoRef{Owner: repo.GetOwner(), Repo: repo.GetRepo()})
+	}
+	return &forgev1.AcceptInvitationsResponse{}, fail(f.AcceptInvitations(ctx, repos))
 }
 
 func (s *server) VerifyPush(ctx context.Context, r *forgev1.VerifyPushRequest) (*forgev1.VerifyPushResponse, error) {

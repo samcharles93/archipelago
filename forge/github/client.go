@@ -50,21 +50,48 @@ func newGitHub(token, host string, log *slog.Logger) (forge.Forge, error) {
 	return &GitHubClient{gh: client.WithAuthToken(token), log: log}, nil
 }
 
-// AcceptInvitations auto-accepts pending repository invitations so
-// adding archie as a collaborator is all a human has to do.
-func (c *GitHubClient) AcceptInvitations(ctx context.Context) error {
+// AcceptInvitations accepts pending repository invitations, but only to the
+// repositories the operator configured this connection for, so adding archie
+// as a collaborator to a configured repository is all a human has to do. An
+// invitation to anything else is left pending.
+func (c *GitHubClient) AcceptInvitations(ctx context.Context, repos []forge.RepoRef) error {
 	invites, _, err := c.gh.Users.ListInvitations(ctx, nil)
 	if err != nil {
 		return apiError("list invitations", err)
 	}
-	for _, inv := range invites {
+	accept, pending := splitInvitations(invites, repos)
+	for _, inv := range pending {
+		c.log.Warn("ignoring repository invitation outside the configured repositories",
+			"repo", inv.GetRepo().GetFullName(), "inviter", inv.GetInviter().GetLogin())
+	}
+	for _, inv := range accept {
+		full := inv.GetRepo().GetFullName()
 		if _, err := c.gh.Users.AcceptInvitation(ctx, inv.GetID()); err != nil {
-			c.log.Warn("accept invitation failed", "repo", inv.GetRepo().GetFullName(), "err", apiError("accept invitation", err))
+			c.log.Warn("accept invitation failed", "repo", full, "err", apiError("accept invitation", err))
 			continue
 		}
-		c.log.Info("accepted repository invitation", "repo", inv.GetRepo().GetFullName())
+		c.log.Info("accepted repository invitation", "repo", full)
 	}
 	return nil
+}
+
+// splitInvitations partitions pending invitations into those to accept --
+// invitations to repositories the operator configured -- and those to leave
+// pending. Matching is on the lower-cased "owner/repo" full name, because
+// GitHub names are case-insensitive.
+func splitInvitations(invites []*github.RepositoryInvitation, repos []forge.RepoRef) (accept, pending []*github.RepositoryInvitation) {
+	allowed := make(map[string]bool, len(repos))
+	for _, r := range repos {
+		allowed[strings.ToLower(r.Owner+"/"+r.Repo)] = true
+	}
+	for _, inv := range invites {
+		if allowed[strings.ToLower(inv.GetRepo().GetFullName())] {
+			accept = append(accept, inv)
+		} else {
+			pending = append(pending, inv)
+		}
+	}
+	return accept, pending
 }
 
 // AssignedIssues returns open issues assigned to the given user,

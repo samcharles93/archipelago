@@ -72,10 +72,11 @@ func notFound(resp *gitea.Response) bool {
 
 // ── Forge interface ──────────────────────────────────────────────────
 
-// AcceptInvitations auto-accepts pending repository invitations.
-func (c *GiteaClient) AcceptInvitations(ctx context.Context) error {
-	// Gitea doesn't have a direct equivalent to GitHub's user invitations
-	// API. Repository collaborators are added directly by the owner.
+// AcceptInvitations accepts pending repository invitations. Gitea doesn't
+// have a direct equivalent to GitHub's user invitations API -- repository
+// collaborators are added directly by the owner -- so there is nothing to
+// accept and the allowlist is moot.
+func (c *GiteaClient) AcceptInvitations(ctx context.Context, repos []forge.RepoRef) error {
 	return nil
 }
 

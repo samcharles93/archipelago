@@ -2311,8 +2311,12 @@ func (*LinkBranchResponse) Descriptor() ([]byte, []int) {
 	return file_forge_v1_forge_proto_rawDescGZIP(), []int{42}
 }
 
+// AcceptInvitationsRequest carries the repositories the operator configured
+// this connection for. Only invitations to these are accepted; an invitation
+// to anything else stays pending.
 type AcceptInvitationsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	Repositories  []*RepoRef             `protobuf:"bytes,1,rep,name=repositories,proto3" json:"repositories,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2345,6 +2349,13 @@ func (x *AcceptInvitationsRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use AcceptInvitationsRequest.ProtoReflect.Descriptor instead.
 func (*AcceptInvitationsRequest) Descriptor() ([]byte, []int) {
 	return file_forge_v1_forge_proto_rawDescGZIP(), []int{43}
+}
+
+func (x *AcceptInvitationsRequest) GetRepositories() []*RepoRef {
+	if x != nil {
+		return x.Repositories
+	}
+	return nil
 }
 
 type AcceptInvitationsResponse struct {
@@ -3161,8 +3172,9 @@ const file_forge_v1_forge_proto_rawDesc = "" +
 	"\x04repo\x18\x01 \x01(\v2\x11.forge.v1.RepoRefR\x04repo\x12!\n" +
 	"\fissue_number\x18\x02 \x01(\x05R\vissueNumber\x12\x16\n" +
 	"\x06branch\x18\x03 \x01(\tR\x06branch\"\x14\n" +
-	"\x12LinkBranchResponse\"\x1a\n" +
-	"\x18AcceptInvitationsRequest\"\x1b\n" +
+	"\x12LinkBranchResponse\"Q\n" +
+	"\x18AcceptInvitationsRequest\x125\n" +
+	"\frepositories\x18\x01 \x03(\v2\x11.forge.v1.RepoRefR\frepositories\"\x1b\n" +
 	"\x19AcceptInvitationsResponse\":\n" +
 	"\x11VerifyPushRequest\x12%\n" +
 	"\x04repo\x18\x01 \x01(\v2\x11.forge.v1.RepoRefR\x04repo\"\x14\n" +
@@ -3342,64 +3354,65 @@ var file_forge_v1_forge_proto_depIdxs = []int32{
 	3,  // 24: forge.v1.CreateReviewCommentsRequest.pull_request:type_name -> forge.v1.PullRequestRef
 	38, // 25: forge.v1.CreateReviewCommentsRequest.comments:type_name -> forge.v1.InlineReviewComment
 	2,  // 26: forge.v1.LinkBranchRequest.repo:type_name -> forge.v1.RepoRef
-	2,  // 27: forge.v1.VerifyPushRequest.repo:type_name -> forge.v1.RepoRef
-	2,  // 28: forge.v1.GetRepoArchiveRequest.repo:type_name -> forge.v1.RepoRef
-	55, // 29: forge.v1.ParseWebhookRequest.headers:type_name -> forge.v1.ParseWebhookRequest.HeadersEntry
-	51, // 30: forge.v1.ParseWebhookResponse.issue:type_name -> forge.v1.IssueEvent
-	52, // 31: forge.v1.ParseWebhookResponse.review:type_name -> forge.v1.ReviewEvent
-	53, // 32: forge.v1.ParseWebhookResponse.review_comment:type_name -> forge.v1.ReviewCommentEvent
-	2,  // 33: forge.v1.IssueEvent.repo:type_name -> forge.v1.RepoRef
-	2,  // 34: forge.v1.ReviewEvent.repo:type_name -> forge.v1.RepoRef
-	2,  // 35: forge.v1.ReviewCommentEvent.repo:type_name -> forge.v1.RepoRef
-	0,  // 36: forge.v1.ForgeService.Configure:input_type -> forge.v1.ConfigureRequest
-	7,  // 37: forge.v1.ForgeService.AssignedIssues:input_type -> forge.v1.AssignedIssuesRequest
-	8,  // 38: forge.v1.ForgeService.IssuesWithLabel:input_type -> forge.v1.IssuesWithLabelRequest
-	9,  // 39: forge.v1.ForgeService.Comment:input_type -> forge.v1.CommentRequest
-	11, // 40: forge.v1.ForgeService.CloseIssue:input_type -> forge.v1.CloseIssueRequest
-	17, // 41: forge.v1.ForgeService.React:input_type -> forge.v1.ReactRequest
-	19, // 42: forge.v1.ForgeService.SetStateLabel:input_type -> forge.v1.SetStateLabelRequest
-	21, // 43: forge.v1.ForgeService.CreatePR:input_type -> forge.v1.CreatePRRequest
-	23, // 44: forge.v1.ForgeService.PRState:input_type -> forge.v1.PRStateRequest
-	13, // 45: forge.v1.ForgeService.ClosePR:input_type -> forge.v1.ClosePRRequest
-	15, // 46: forge.v1.ForgeService.MergePR:input_type -> forge.v1.MergePRRequest
-	26, // 47: forge.v1.ForgeService.GetPullRequest:input_type -> forge.v1.GetPullRequestRequest
-	28, // 48: forge.v1.ForgeService.GetPullRequestDiff:input_type -> forge.v1.GetPullRequestDiffRequest
-	30, // 49: forge.v1.ForgeService.ListReviews:input_type -> forge.v1.ListReviewsRequest
-	34, // 50: forge.v1.ForgeService.ListReviewComments:input_type -> forge.v1.ListReviewCommentsRequest
-	36, // 51: forge.v1.ForgeService.ReplyToReview:input_type -> forge.v1.ReplyToReviewRequest
-	39, // 52: forge.v1.ForgeService.CreateReviewComments:input_type -> forge.v1.CreateReviewCommentsRequest
-	43, // 53: forge.v1.ForgeService.AcceptInvitations:input_type -> forge.v1.AcceptInvitationsRequest
-	45, // 54: forge.v1.ForgeService.VerifyPush:input_type -> forge.v1.VerifyPushRequest
-	41, // 55: forge.v1.ForgeService.LinkBranch:input_type -> forge.v1.LinkBranchRequest
-	49, // 56: forge.v1.ForgeService.ParseWebhook:input_type -> forge.v1.ParseWebhookRequest
-	47, // 57: forge.v1.ForgeService.GetRepoArchive:input_type -> forge.v1.GetRepoArchiveRequest
-	1,  // 58: forge.v1.ForgeService.Configure:output_type -> forge.v1.ConfigureResponse
-	5,  // 59: forge.v1.ForgeService.AssignedIssues:output_type -> forge.v1.AssignedIssuesResponse
-	6,  // 60: forge.v1.ForgeService.IssuesWithLabel:output_type -> forge.v1.IssuesWithLabelResponse
-	10, // 61: forge.v1.ForgeService.Comment:output_type -> forge.v1.CommentResponse
-	12, // 62: forge.v1.ForgeService.CloseIssue:output_type -> forge.v1.CloseIssueResponse
-	18, // 63: forge.v1.ForgeService.React:output_type -> forge.v1.ReactResponse
-	20, // 64: forge.v1.ForgeService.SetStateLabel:output_type -> forge.v1.SetStateLabelResponse
-	22, // 65: forge.v1.ForgeService.CreatePR:output_type -> forge.v1.CreatePRResponse
-	24, // 66: forge.v1.ForgeService.PRState:output_type -> forge.v1.PRStateResponse
-	14, // 67: forge.v1.ForgeService.ClosePR:output_type -> forge.v1.ClosePRResponse
-	16, // 68: forge.v1.ForgeService.MergePR:output_type -> forge.v1.MergePRResponse
-	27, // 69: forge.v1.ForgeService.GetPullRequest:output_type -> forge.v1.GetPullRequestResponse
-	29, // 70: forge.v1.ForgeService.GetPullRequestDiff:output_type -> forge.v1.GetPullRequestDiffResponse
-	32, // 71: forge.v1.ForgeService.ListReviews:output_type -> forge.v1.ListReviewsResponse
-	35, // 72: forge.v1.ForgeService.ListReviewComments:output_type -> forge.v1.ListReviewCommentsResponse
-	37, // 73: forge.v1.ForgeService.ReplyToReview:output_type -> forge.v1.ReplyToReviewResponse
-	40, // 74: forge.v1.ForgeService.CreateReviewComments:output_type -> forge.v1.CreateReviewCommentsResponse
-	44, // 75: forge.v1.ForgeService.AcceptInvitations:output_type -> forge.v1.AcceptInvitationsResponse
-	46, // 76: forge.v1.ForgeService.VerifyPush:output_type -> forge.v1.VerifyPushResponse
-	42, // 77: forge.v1.ForgeService.LinkBranch:output_type -> forge.v1.LinkBranchResponse
-	50, // 78: forge.v1.ForgeService.ParseWebhook:output_type -> forge.v1.ParseWebhookResponse
-	48, // 79: forge.v1.ForgeService.GetRepoArchive:output_type -> forge.v1.GetRepoArchiveResponse
-	58, // [58:80] is the sub-list for method output_type
-	36, // [36:58] is the sub-list for method input_type
-	36, // [36:36] is the sub-list for extension type_name
-	36, // [36:36] is the sub-list for extension extendee
-	0,  // [0:36] is the sub-list for field type_name
+	2,  // 27: forge.v1.AcceptInvitationsRequest.repositories:type_name -> forge.v1.RepoRef
+	2,  // 28: forge.v1.VerifyPushRequest.repo:type_name -> forge.v1.RepoRef
+	2,  // 29: forge.v1.GetRepoArchiveRequest.repo:type_name -> forge.v1.RepoRef
+	55, // 30: forge.v1.ParseWebhookRequest.headers:type_name -> forge.v1.ParseWebhookRequest.HeadersEntry
+	51, // 31: forge.v1.ParseWebhookResponse.issue:type_name -> forge.v1.IssueEvent
+	52, // 32: forge.v1.ParseWebhookResponse.review:type_name -> forge.v1.ReviewEvent
+	53, // 33: forge.v1.ParseWebhookResponse.review_comment:type_name -> forge.v1.ReviewCommentEvent
+	2,  // 34: forge.v1.IssueEvent.repo:type_name -> forge.v1.RepoRef
+	2,  // 35: forge.v1.ReviewEvent.repo:type_name -> forge.v1.RepoRef
+	2,  // 36: forge.v1.ReviewCommentEvent.repo:type_name -> forge.v1.RepoRef
+	0,  // 37: forge.v1.ForgeService.Configure:input_type -> forge.v1.ConfigureRequest
+	7,  // 38: forge.v1.ForgeService.AssignedIssues:input_type -> forge.v1.AssignedIssuesRequest
+	8,  // 39: forge.v1.ForgeService.IssuesWithLabel:input_type -> forge.v1.IssuesWithLabelRequest
+	9,  // 40: forge.v1.ForgeService.Comment:input_type -> forge.v1.CommentRequest
+	11, // 41: forge.v1.ForgeService.CloseIssue:input_type -> forge.v1.CloseIssueRequest
+	17, // 42: forge.v1.ForgeService.React:input_type -> forge.v1.ReactRequest
+	19, // 43: forge.v1.ForgeService.SetStateLabel:input_type -> forge.v1.SetStateLabelRequest
+	21, // 44: forge.v1.ForgeService.CreatePR:input_type -> forge.v1.CreatePRRequest
+	23, // 45: forge.v1.ForgeService.PRState:input_type -> forge.v1.PRStateRequest
+	13, // 46: forge.v1.ForgeService.ClosePR:input_type -> forge.v1.ClosePRRequest
+	15, // 47: forge.v1.ForgeService.MergePR:input_type -> forge.v1.MergePRRequest
+	26, // 48: forge.v1.ForgeService.GetPullRequest:input_type -> forge.v1.GetPullRequestRequest
+	28, // 49: forge.v1.ForgeService.GetPullRequestDiff:input_type -> forge.v1.GetPullRequestDiffRequest
+	30, // 50: forge.v1.ForgeService.ListReviews:input_type -> forge.v1.ListReviewsRequest
+	34, // 51: forge.v1.ForgeService.ListReviewComments:input_type -> forge.v1.ListReviewCommentsRequest
+	36, // 52: forge.v1.ForgeService.ReplyToReview:input_type -> forge.v1.ReplyToReviewRequest
+	39, // 53: forge.v1.ForgeService.CreateReviewComments:input_type -> forge.v1.CreateReviewCommentsRequest
+	43, // 54: forge.v1.ForgeService.AcceptInvitations:input_type -> forge.v1.AcceptInvitationsRequest
+	45, // 55: forge.v1.ForgeService.VerifyPush:input_type -> forge.v1.VerifyPushRequest
+	41, // 56: forge.v1.ForgeService.LinkBranch:input_type -> forge.v1.LinkBranchRequest
+	49, // 57: forge.v1.ForgeService.ParseWebhook:input_type -> forge.v1.ParseWebhookRequest
+	47, // 58: forge.v1.ForgeService.GetRepoArchive:input_type -> forge.v1.GetRepoArchiveRequest
+	1,  // 59: forge.v1.ForgeService.Configure:output_type -> forge.v1.ConfigureResponse
+	5,  // 60: forge.v1.ForgeService.AssignedIssues:output_type -> forge.v1.AssignedIssuesResponse
+	6,  // 61: forge.v1.ForgeService.IssuesWithLabel:output_type -> forge.v1.IssuesWithLabelResponse
+	10, // 62: forge.v1.ForgeService.Comment:output_type -> forge.v1.CommentResponse
+	12, // 63: forge.v1.ForgeService.CloseIssue:output_type -> forge.v1.CloseIssueResponse
+	18, // 64: forge.v1.ForgeService.React:output_type -> forge.v1.ReactResponse
+	20, // 65: forge.v1.ForgeService.SetStateLabel:output_type -> forge.v1.SetStateLabelResponse
+	22, // 66: forge.v1.ForgeService.CreatePR:output_type -> forge.v1.CreatePRResponse
+	24, // 67: forge.v1.ForgeService.PRState:output_type -> forge.v1.PRStateResponse
+	14, // 68: forge.v1.ForgeService.ClosePR:output_type -> forge.v1.ClosePRResponse
+	16, // 69: forge.v1.ForgeService.MergePR:output_type -> forge.v1.MergePRResponse
+	27, // 70: forge.v1.ForgeService.GetPullRequest:output_type -> forge.v1.GetPullRequestResponse
+	29, // 71: forge.v1.ForgeService.GetPullRequestDiff:output_type -> forge.v1.GetPullRequestDiffResponse
+	32, // 72: forge.v1.ForgeService.ListReviews:output_type -> forge.v1.ListReviewsResponse
+	35, // 73: forge.v1.ForgeService.ListReviewComments:output_type -> forge.v1.ListReviewCommentsResponse
+	37, // 74: forge.v1.ForgeService.ReplyToReview:output_type -> forge.v1.ReplyToReviewResponse
+	40, // 75: forge.v1.ForgeService.CreateReviewComments:output_type -> forge.v1.CreateReviewCommentsResponse
+	44, // 76: forge.v1.ForgeService.AcceptInvitations:output_type -> forge.v1.AcceptInvitationsResponse
+	46, // 77: forge.v1.ForgeService.VerifyPush:output_type -> forge.v1.VerifyPushResponse
+	42, // 78: forge.v1.ForgeService.LinkBranch:output_type -> forge.v1.LinkBranchResponse
+	50, // 79: forge.v1.ForgeService.ParseWebhook:output_type -> forge.v1.ParseWebhookResponse
+	48, // 80: forge.v1.ForgeService.GetRepoArchive:output_type -> forge.v1.GetRepoArchiveResponse
+	59, // [59:81] is the sub-list for method output_type
+	37, // [37:59] is the sub-list for method input_type
+	37, // [37:37] is the sub-list for extension type_name
+	37, // [37:37] is the sub-list for extension extendee
+	0,  // [0:37] is the sub-list for field type_name
 }
 
 func init() { file_forge_v1_forge_proto_init() }

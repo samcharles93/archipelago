@@ -24,6 +24,12 @@ type Issue struct {
 	Labels []string
 }
 
+// RepoRef identifies one repository on a forge.
+type RepoRef struct {
+	Owner string
+	Repo  string
+}
+
 // Forge is the capability every forge extension has.
 type Forge interface {
 	AssignedIssues(ctx context.Context, owner, repo, assignee string) ([]Issue, error)
@@ -42,7 +48,11 @@ type Forge interface {
 	ClosePR(ctx context.Context, owner, repo string, number int, comment string) error
 	// MergePR merges a pull request with the forge's default method.
 	MergePR(ctx context.Context, owner, repo string, number int) error
-	AcceptInvitations(ctx context.Context) error
+	// AcceptInvitations accepts pending repository invitations, but only to
+	// the given repositories: an invitation to anything else is left
+	// pending, so a stranger cannot add the forge's account to a repository
+	// the operator never configured.
+	AcceptInvitations(ctx context.Context, repos []RepoRef) error
 	VerifyPush(ctx context.Context, owner, repo string) error
 	LinkBranch(ctx context.Context, owner, repo string, issueNumber int, branch string) error
 }
