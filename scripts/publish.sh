@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 # Pack every package to REGISTRY and publish the signed catalogue that lists
-# them, the one archie-core's Extensions page installs from.
+# them, the one archie-core's Extensions page installs from. The signer stamps
+# the catalogue with its issue time and signs it; archie-core refuses a
+# catalogue older than the newest it has accepted, so the stamp is what keeps
+# an older validly signed catalogue from being replayed.
 #   ARCHIPELAGO_CATALOGUE_KEY=... scripts/publish.sh ghcr.io/samcharles93/archipelago
 # Each package is <surface>-<name>:<version>; the catalogue is catalogue:latest.
 set -euo pipefail
@@ -25,15 +28,15 @@ while IFS= read -r descriptor; do
 done < <(find "$root" -mindepth 3 -maxdepth 3 -name package.yaml -not -path '*/sdk/*' | LC_ALL=C sort)
 
 printf '%s\n' "${entries[@]}" | jq -cs '{packages: .}' | tr -d '\n' >"$work/catalogue.json"
-signature=$(go -C "$root" run ./scripts/catalogue <"$work/catalogue.json")
+signature=$(go -C "$root" run ./scripts/catalogue "$work/catalogue.json" "$work/catalogue.stamped.json")
 
 mkdir -p "$work/oci/blobs/sha256"
 blob() { local d; d=$(sha256sum "$1" | cut -d' ' -f1); cp "$1" "$work/oci/blobs/sha256/$d"; echo "sha256:$d"; }
 printf '{}' >"$work/config.json"
 config=$(blob "$work/config.json")
-layer=$(blob "$work/catalogue.json")
+layer=$(blob "$work/catalogue.stamped.json")
 jq -n --arg config "$config" --arg layer "$layer" --arg signature "$signature" \
-  --argjson size "$(stat -c %s "$work/catalogue.json")" '{
+  --argjson size "$(stat -c %s "$work/catalogue.stamped.json")" '{
     schemaVersion: 2,
     mediaType: "application/vnd.oci.image.manifest.v1+json",
     artifactType: "application/vnd.archie.catalogue.v1+json",
@@ -49,4 +52,4 @@ jq -n --arg d "$manifest" --argjson s "$(stat -c %s "$work/manifest.json")" \
 tls=true
 case "$registry" in localhost[:/]* | 127.0.0.1[:/]* | "[::1]"*) tls=false ;; esac
 skopeo copy --preserve-digests --dest-tls-verify=$tls "oci:$work/oci" "docker://$registry/catalogue:latest" >&2
-echo "published $(jq '.packages | length' "$work/catalogue.json") packages"
+echo "published $(jq '.packages | length' "$work/catalogue.stamped.json") packages"
